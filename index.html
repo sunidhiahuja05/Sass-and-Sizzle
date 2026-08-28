@@ -1,0 +1,1965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sass & Sizzle | Your excuse to order out, gone.</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    * { font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { transition: background-color 0.4s ease, color 0.4s ease; color: #F5F5F0; }
+    .theme-healthy { background-color: #121714; --accent: #10B981; --accent-soft: rgba(16, 185, 129, 0.15); --accent-border: rgba(16, 185, 129, 0.3); }
+    .theme-craving { background-color: #1A1310; --accent: #F97316; --accent-soft: rgba(249, 115, 22, 0.15); --accent-border: rgba(249, 115, 22, 0.3); }
+    .accent-bg { background-color: var(--accent); color: #121212; }
+    .accent-text { color: var(--accent); }
+    .accent-border { border-color: var(--accent); }
+    .glass-card { background: rgba(32, 30, 28, 0.65); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .glass-card-accent { background: rgba(32, 30, 28, 0.75); backdrop-filter: blur(12px); border: 1px solid var(--accent-border); }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="theme-healthy min-h-screen pb-28 md:pb-12">
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-40 glass-card border-b border-white/10 px-4 py-3.5 mb-6">
+    <div class="max-w-5xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="navigate('home')">
+        <div class="w-8 h-8 rounded-xl accent-bg flex items-center justify-center font-black text-sm">S&S</div>
+        <div>
+          <span class="font-extrabold tracking-tight text-lg leading-none block">SASS & SIZZLE</span>
+          <span class="text-[10px] uppercase tracking-widest opacity-60">Your excuse to order out, gone</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="header-mode-toggle" onclick="toggleMode()" class="px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider glass-card border border-white/10 hover:border-white/30 transition-all flex items-center gap-1.5">
+          <span id="header-mode-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span id="header-mode-text">Healthy</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- APP ROOT -->
+  <main id="app-root" class="max-w-5xl mx-auto px-4"></main>
+
+  <!-- BOTTOM MOBILE NAVIGATION -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 glass-card border-t border-white/10 px-6 py-2.5 flex justify-around md:hidden">
+    <button onclick="navigate('home')" id="nav-btn-home" class="flex flex-col items-center gap-1 opacity-60">
+      <i data-lucide="sparkles" class="w-5 h-5"></i>
+      <span class="text-[10px] font-semibold tracking-wide">Vibe</span>
+    </button>
+    <button onclick="navigate('discover')" id="nav-btn-discover" class="flex flex-col items-center gap-1 opacity-60">
+      <i data-lucide="compass" class="w-5 h-5"></i>
+      <span class="text-[10px] font-semibold tracking-wide">Discover</span>
+    </button>
+    <button onclick="navigate('pantry')" id="nav-btn-pantry" class="flex flex-col items-center gap-1 opacity-60">
+      <i data-lucide="refrigerator" class="w-5 h-5"></i>
+      <span class="text-[10px] font-semibold tracking-wide">Pantry</span>
+    </button>
+    <button onclick="navigate('saved')" id="nav-btn-saved" class="flex flex-col items-center gap-1 opacity-60">
+      <i data-lucide="heart" class="w-5 h-5"></i>
+      <span class="text-[10px] font-semibold tracking-wide">Saved</span>
+    </button>
+    <button onclick="navigate('settings')" id="nav-btn-settings" class="flex flex-col items-center gap-1 opacity-60">
+      <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
+      <span class="text-[10px] font-semibold tracking-wide">Profile</span>
+    </button>
+  </nav>
+
+  <!-- ONBOARDING MODAL -->
+  <div id="onboarding-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-card w-full max-w-md p-6 rounded-3xl border border-white/20 text-center space-y-5 animate-in fade-in">
+      <div class="w-12 h-12 rounded-2xl accent-bg flex items-center justify-center font-bold text-xl mx-auto">S&S</div>
+      <div>
+        <h2 class="text-2xl font-bold">Welcome to Sass & Sizzle.</h2>
+        <p class="text-sm opacity-70 mt-1">Let's make this yours in 10 seconds.</p>
+      </div>
+      <div class="text-left space-y-4">
+        <div>
+          <label class="text-xs font-bold uppercase tracking-wider opacity-60 block mb-1.5">What should we call you?</label>
+          <input type="text" id="ob-name" placeholder="Chef" class="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-400" />
+        </div>
+        <div>
+          <label class="text-xs font-bold uppercase tracking-wider opacity-60 block mb-1.5">What's your usual vibe?</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="setObMode('healthy')" id="ob-mode-healthy" class="py-2.5 rounded-xl text-xs font-bold border border-emerald-500 bg-emerald-500/20 text-emerald-300">Clean & Healthy</button>
+            <button type="button" onclick="setObMode('craving')" id="ob-mode-craving" class="py-2.5 rounded-xl text-xs font-bold border border-white/10 bg-white/5">Comfort & Craving</button>
+          </div>
+        </div>
+        <div>
+          <label class="text-xs font-bold uppercase tracking-wider opacity-60 block mb-1.5">Dietary Preference</label>
+          <select id="ob-diet" class="w-full bg-[#201E1C] border border-white/15 rounded-xl px-3 py-2.5 text-sm focus:outline-none">
+            <option value="vegetarian">Vegetarian</option>
+            <option value="eggetarian">Eggetarian</option>
+            <option value="non_vegetarian">Non-Vegetarian</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button onclick="finishOnboarding(true)" class="w-1/2 py-3 rounded-full text-xs font-bold opacity-60 hover:opacity-100">Skip</button>
+        <button onclick="finishOnboarding(false)" class="w-1/2 py-3 rounded-full text-xs font-bold accent-bg">Let's Cook</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // 1. COMPLETE 25 RECIPES DATABASE
+    // ==========================================
+    const RECIPES = [
+      {
+        id: "high-protein-egg-rice", title: "High-Protein Egg Rice",
+        description: "A fast, savory egg and rice skillet for a satisfying weeknight meal.",
+        mode: "healthy", dietType: "eggetarian", activePrepMinutes: 2, cookMinutes: 5, totalMinutes: 7, servings: 1,
+        image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 spatula"], cheeky: "Dinner without the drama.",
+        ingredients: [
+          { id: "eggs", name: "Eggs", quantity: 2, unit: "eggs", grams: 100, practicalMeasure: "2 eggs", category: "protein" },
+          { id: "cooked-rice", name: "Cooked rice", quantity: 150, unit: "g", grams: 150, practicalMeasure: "about 1 coffee mug", category: "carbohydrate" },
+          { id: "cooking-oil", name: "Cooking oil", quantity: 1, unit: "tbsp", grams: 14, practicalMeasure: "1 tbsp", category: "fat" },
+          { id: "soy-sauce", name: "Soy sauce", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "sauce" },
+          { id: "black-pepper", name: "Black pepper", quantity: 0.25, unit: "tsp", grams: 0.5, practicalMeasure: "a small pinch", category: "seasoning" },
+          { id: "spring-onion", name: "Spring onion", quantity: 1, unit: "tbsp", grams: 6, practicalMeasure: "1 tbsp", category: "vegetable" }
+        ],
+        steps: [
+          { order: 1, instruction: "Heat the oil in a skillet over medium-high heat.", timerSeconds: 30 },
+          { order: 2, instruction: "Crack in the eggs and scramble until almost set.", timerSeconds: 60 },
+          { order: 3, instruction: "Add the cooked rice and stir-fry with the eggs.", timerSeconds: 120 },
+          { order: 4, instruction: "Add soy sauce and black pepper. Toss everything together.", timerSeconds: 60 },
+          { order: 5, instruction: "Top with spring onion and serve immediately.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 420, proteinG: 31, carbsG: 38, fiberG: 3, netCarbsG: 35, fatG: 15 },
+        micronutrients: [
+          { nutrient: "Vitamin B12", amount: 1.5, unit: "µg", benefit: "Supports normal red blood cell formation and nervous system function." },
+          { nutrient: "Selenium", amount: 35, unit: "µg", benefit: "Supports normal thyroid and immune function." },
+          { nutrient: "Choline", amount: 250, unit: "mg", benefit: "Supports normal cell and nervous system function." }
+        ]
+      },
+      {
+        id: "pepper-paneer-bowl", title: "Pepper Paneer Bowl",
+        description: "Pan-seared spiced paneer and crisp bell peppers over seasoned fluffy rice.",
+        mode: "healthy", dietType: "vegetarian", activePrepMinutes: 2, cookMinutes: 6, totalMinutes: 8, servings: 1,
+        image: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 spatula"], cheeky: "Tiny effort. Big payoff.",
+        ingredients: [
+          { id: "paneer", name: "Paneer", quantity: 100, unit: "g", grams: 100, practicalMeasure: "about ¾ cup cubed", category: "protein" },
+          { id: "cooked-rice", name: "Cooked rice", quantity: 120, unit: "g", grams: 120, practicalMeasure: "about ¾ coffee mug", category: "carbohydrate" },
+          { id: "bell-pepper", name: "Bell pepper", quantity: 80, unit: "g", grams: 80, practicalMeasure: "½ medium pepper", category: "vegetable" },
+          { id: "cooking-oil", name: "Cooking oil", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "fat" },
+          { id: "soy-sauce", name: "Soy sauce", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "sauce" },
+          { id: "black-pepper", name: "Black pepper", quantity: 0.5, unit: "tsp", grams: 1, practicalMeasure: "small pinch", category: "seasoning" },
+          { id: "spring-onion", name: "Spring onion", quantity: 1, unit: "tbsp", grams: 6, practicalMeasure: "1 tbsp", category: "vegetable" }
+        ],
+        steps: [
+          { order: 1, instruction: "Heat the oil in a wide skillet over high heat.", timerSeconds: 30 },
+          { order: 2, instruction: "Add paneer cubes and sliced bell peppers.", timerSeconds: 60 },
+          { order: 3, instruction: "Cook tossing regularly until paneer edges turn golden brown.", timerSeconds: 150 },
+          { order: 4, instruction: "Add cooked rice, soy sauce, and black pepper.", timerSeconds: 60 },
+          { order: 5, instruction: "Toss thoroughly on high heat to sear.", timerSeconds: 30 },
+          { order: 6, instruction: "Finish with spring onion and enjoy hot.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 450, proteinG: 28, carbsG: 35, fiberG: 4, netCarbsG: 31, fatG: 22 },
+        micronutrients: [
+          { nutrient: "Calcium", amount: 280, unit: "mg", benefit: "Supports strong bones and neuromuscular function." },
+          { nutrient: "Vitamin B12", amount: 1.2, unit: "µg", benefit: "Helps maintain metabolic energy." },
+          { nutrient: "Phosphorus", amount: 300, unit: "mg", benefit: "Key mineral for cellular repair and energy storage." }
+        ]
+      },
+      {
+        id: "curd-chickpea-rice", title: "Curd Chickpea Rice",
+        description: "Cooling spiced curd rice paired with golden, roasted chickpeas.",
+        mode: "healthy", dietType: "vegetarian", activePrepMinutes: 2, cookMinutes: 4, totalMinutes: 6, servings: 1,
+        image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 bowl", "1 spoon"], cheeky: "Your kitchen called. It wants this.",
+        ingredients: [
+          { id: "chickpeas", name: "Cooked chickpeas", quantity: 100, unit: "g", grams: 100, practicalMeasure: "½–⅔ cup", category: "protein" },
+          { id: "cooked-rice", name: "Cooked rice", quantity: 120, unit: "g", grams: 120, practicalMeasure: "about ¾ coffee mug", category: "carbohydrate" },
+          { id: "curd", name: "Plain curd", quantity: 100, unit: "g", grams: 100, practicalMeasure: "about ½ cup", category: "dairy" },
+          { id: "cumin", name: "Cumin", quantity: 0.5, unit: "tsp", grams: 1, practicalMeasure: "½ tsp", category: "seasoning" },
+          { id: "black-pepper", name: "Black pepper", quantity: 0.25, unit: "tsp", grams: 0.5, practicalMeasure: "pinch", category: "seasoning" },
+          { id: "coriander", name: "Coriander", quantity: 1, unit: "tbsp", grams: 4, practicalMeasure: "1 tbsp", category: "herb" }
+        ],
+        steps: [
+          { order: 1, instruction: "Warm cooked chickpeas in a pan with cumin and black pepper.", timerSeconds: 120 },
+          { order: 2, instruction: "In a serving bowl, mix curd and cooked rice until smooth and creamy.", timerSeconds: 60 },
+          { order: 3, instruction: "Pour the warm spiced chickpeas right over the curd rice.", timerSeconds: 30 },
+          { order: 4, instruction: "Garnish with chopped fresh coriander.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 390, proteinG: 20, carbsG: 55, fiberG: 8, netCarbsG: 47, fatG: 8 },
+        micronutrients: [
+          { nutrient: "Calcium", amount: 190, unit: "mg", benefit: "Promotes bone density and muscle contractions." },
+          { nutrient: "Folate", amount: 150, unit: "µg", benefit: "Essential for healthy DNA synthesis and cellular growth." },
+          { nutrient: "Iron", amount: 3.5, unit: "mg", benefit: "Aids regular oxygen transport throughout your body." }
+        ]
+      },
+      {
+        id: "spinach-egg-toast", title: "Spinach Egg Toast",
+        description: "Garlicky wilted spinach and soft fried eggs loaded on crusty whole-grain toast.",
+        mode: "healthy", dietType: "eggetarian", activePrepMinutes: 2, cookMinutes: 5, totalMinutes: 7, servings: 1,
+        image: "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 spatula"], cheeky: "You're 7 minutes away from eating.",
+        ingredients: [
+          { id: "eggs", name: "Eggs", quantity: 2, unit: "eggs", grams: 100, practicalMeasure: "2 eggs", category: "protein" },
+          { id: "bread", name: "Whole-grain bread", quantity: 2, unit: "slices", grams: 60, practicalMeasure: "2 slices", category: "carbohydrate" },
+          { id: "spinach", name: "Spinach", quantity: 50, unit: "g", grams: 50, practicalMeasure: "1 large handful", category: "vegetable" },
+          { id: "olive-oil", name: "Olive oil", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "fat" },
+          { id: "black-pepper", name: "Black pepper", quantity: 0.25, unit: "tsp", grams: 0.5, practicalMeasure: "pinch", category: "seasoning" },
+          { id: "salt", name: "Salt", quantity: 0.1, unit: "tsp", grams: 0.5, practicalMeasure: "small pinch", category: "seasoning" }
+        ],
+        steps: [
+          { order: 1, instruction: "Toast the bread slices to a deep golden crunch.", timerSeconds: 90 },
+          { order: 2, instruction: "Heat olive oil in a pan, toss in spinach and wilt gently.", timerSeconds: 60 },
+          { order: 3, instruction: "Crack eggs into the same pan and fry sunny-side up.", timerSeconds: 120 },
+          { order: 4, instruction: "Layer spinach on toast, top with eggs, and finish with cracked pepper.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 360, proteinG: 25, carbsG: 29, fiberG: 5, netCarbsG: 24, fatG: 17 },
+        micronutrients: [
+          { nutrient: "Vitamin A", amount: 400, unit: "µg RAE", benefit: "Supports eye health and skin barrier integrity." },
+          { nutrient: "Folate", amount: 120, unit: "µg", benefit: "Supports cell renewal and neurological function." },
+          { nutrient: "Vitamin B12", amount: 1.4, unit: "µg", benefit: "Maintains optimal nerve cell function." }
+        ]
+      },
+      {
+        id: "lemon-tuna-rice", title: "Lemon Tuna Rice",
+        description: "Bright, zesty lemon-tossed flaked tuna over rice with crisp cucumbers.",
+        mode: "healthy", dietType: "non_vegetarian", activePrepMinutes: 3, cookMinutes: 4, totalMinutes: 7, servings: 1,
+        image: "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 bowl", "1 spoon"],
+        ingredients: [
+          { id: "tuna", name: "Canned tuna, drained", quantity: 120, unit: "g", grams: 120, practicalMeasure: "1 small can drained", category: "protein" },
+          { id: "cooked-rice", name: "Cooked rice", quantity: 120, unit: "g", grams: 120, practicalMeasure: "¾ coffee mug", category: "carbohydrate" },
+          { id: "cucumber", name: "Cucumber", quantity: 80, unit: "g", grams: 80, practicalMeasure: "½ medium cucumber", category: "vegetable" },
+          { id: "lemon", name: "Lemon juice", quantity: 1, unit: "tbsp", grams: 15, practicalMeasure: "1 tbsp juice", category: "seasoning" },
+          { id: "olive-oil", name: "Olive oil", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "fat" },
+          { id: "black-pepper", name: "Black pepper", quantity: 0.25, unit: "tsp", grams: 0.5, practicalMeasure: "pinch", category: "seasoning" }
+        ],
+        steps: [
+          { order: 1, instruction: "Drain the tuna and flake it into bite-sized pieces in a bowl.", timerSeconds: 30 },
+          { order: 2, instruction: "Dice the cucumber finely and combine with the tuna.", timerSeconds: 60 },
+          { order: 3, instruction: "Add warm rice, fresh lemon juice, olive oil, and cracked pepper.", timerSeconds: 60 },
+          { order: 4, instruction: "Toss vigorously and serve immediately.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 410, proteinG: 34, carbsG: 37, fiberG: 2, netCarbsG: 35, fatG: 12 },
+        micronutrients: [
+          { nutrient: "Vitamin B12", amount: 2.4, unit: "µg", benefit: "Supports red blood cells and brain health." },
+          { nutrient: "Selenium", amount: 65, unit: "µg", benefit: "Powerful antioxidant defense for cellular protection." },
+          { nutrient: "Vitamin D", amount: 3, unit: "µg", benefit: "Facilitates calcium absorption and mood balance." }
+        ]
+      },
+      {
+        id: "chicken-pepper-wrap", title: "Chicken Pepper Wrap",
+        description: "Juicy cooked chicken strips, crisp peppers, and creamy yogurt rolled in a warm wrap.",
+        mode: "healthy", dietType: "non_vegetarian", activePrepMinutes: 3, cookMinutes: 6, totalMinutes: 9, servings: 1,
+        image: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 tongs"],
+        ingredients: [
+          { id: "chicken", name: "Cooked chicken", quantity: 120, unit: "g", grams: 120, practicalMeasure: "1 generous palm", category: "protein" },
+          { id: "wrap", name: "Tortilla wrap", quantity: 1, unit: "wrap", grams: 60, practicalMeasure: "1 wrap", category: "carbohydrate" },
+          { id: "bell-pepper", name: "Bell pepper", quantity: 60, unit: "g", grams: 60, practicalMeasure: "½ cup sliced", category: "vegetable" },
+          { id: "yogurt", name: "Plain yogurt", quantity: 40, unit: "g", grams: 40, practicalMeasure: "2 tbsp", category: "dairy" },
+          { id: "lettuce", name: "Lettuce", quantity: 30, unit: "g", grams: 30, practicalMeasure: "handful", category: "vegetable" },
+          { id: "black-pepper", name: "Black pepper", quantity: 0.25, unit: "tsp", grams: 0.5, practicalMeasure: "pinch", category: "seasoning" }
+        ],
+        steps: [
+          { order: 1, instruction: "Warm the skillet and flash-fry the bell peppers until tender-crisp.", timerSeconds: 90 },
+          { order: 2, instruction: "Toss in the cooked chicken to heat through with cracked black pepper.", timerSeconds: 90 },
+          { order: 3, instruction: "Warm the tortilla wrap on a dry pan.", timerSeconds: 45 },
+          { order: 4, instruction: "Spread yogurt, lay lettuce, load chicken and peppers, then roll tightly.", timerSeconds: 45 }
+        ],
+        nutrition: { calories: 440, proteinG: 35, carbsG: 36, fiberG: 5, netCarbsG: 31, fatG: 16 },
+        micronutrients: [
+          { nutrient: "Vitamin B6", amount: 0.8, unit: "mg", benefit: "Supports neurotransmitter creation." },
+          { nutrient: "Niacin", amount: 10, unit: "mg", benefit: "Supports digestive efficiency and skin vitality." },
+          { nutrient: "Selenium", amount: 35, unit: "µg", benefit: "Helps regulate standard immune responses." }
+        ]
+      },
+      {
+        id: "garlic-chicken-rice", title: "Garlic Chicken Rice",
+        description: "Toasted garlic, tender chicken, and soy-infused rice cooked to golden perfection.",
+        mode: "healthy", dietType: "non_vegetarian", activePrepMinutes: 2, cookMinutes: 8, totalMinutes: 10, servings: 1,
+        image: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 spatula"], cheeky: "Look at you, cooking.",
+        ingredients: [
+          { id: "chicken", name: "Cooked chicken", quantity: 120, unit: "g", grams: 120, practicalMeasure: "1 generous palm", category: "protein" },
+          { id: "cooked-rice", name: "Cooked rice", quantity: 150, unit: "g", grams: 150, practicalMeasure: "1 coffee mug", category: "carbohydrate" },
+          { id: "garlic", name: "Garlic", quantity: 2, unit: "cloves", grams: 6, practicalMeasure: "2 cloves minced", category: "aromatic" },
+          { id: "soy-sauce", name: "Soy sauce", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "sauce" },
+          { id: "cooking-oil", name: "Cooking oil", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "fat" },
+          { id: "spring-onion", name: "Spring onion", quantity: 1, unit: "tbsp", grams: 6, practicalMeasure: "1 tbsp", category: "vegetable" },
+          { id: "black-pepper", name: "Black pepper", quantity: 0.25, unit: "tsp", grams: 0.5, practicalMeasure: "pinch", category: "seasoning" }
+        ],
+        steps: [
+          { order: 1, instruction: "Heat oil in the pan and sauté minced garlic until fragrant and lightly brown.", timerSeconds: 60 },
+          { order: 2, instruction: "Add shredded cooked chicken and toss to coat in garlic oil.", timerSeconds: 90 },
+          { order: 3, instruction: "Add the cooked rice and stir-fry over high heat.", timerSeconds: 150 },
+          { order: 4, instruction: "Drizzle with soy sauce and crack fresh black pepper over top.", timerSeconds: 45 },
+          { order: 5, instruction: "Garnish with sliced spring onions and serve hot.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 480, proteinG: 38, carbsG: 43, fiberG: 2, netCarbsG: 41, fatG: 16 },
+        micronutrients: [
+          { nutrient: "Vitamin B6", amount: 0.9, unit: "mg", benefit: "Aids cellular amino acid processing." },
+          { nutrient: "Selenium", amount: 42, unit: "µg", benefit: "Boosts natural antioxidant defenses." },
+          { nutrient: "Niacin", amount: 14, unit: "mg", benefit: "Promotes cardiovascular energy efficiency." }
+        ]
+      },
+      {
+        id: "savory-egg-curd-bowl", title: "Savory Egg Curd Bowl",
+        description: "Hard-boiled eggs over seasoned thick yogurt, rice, and crisp cucumbers.",
+        mode: "healthy", dietType: "eggetarian", activePrepMinutes: 2, cookMinutes: 3, totalMinutes: 5, servings: 1,
+        image: "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 bowl", "1 knife", "1 spoon"],
+        ingredients: [
+          { id: "eggs", name: "Boiled eggs", quantity: 2, unit: "eggs", grams: 100, practicalMeasure: "2 eggs", category: "protein" },
+          { id: "curd", name: "Plain curd", quantity: 120, unit: "g", grams: 120, practicalMeasure: "about ½ cup", category: "dairy" },
+          { id: "cooked-rice", name: "Cooked rice", quantity: 100, unit: "g", grams: 100, practicalMeasure: "¾ coffee mug", category: "carbohydrate" },
+          { id: "cucumber", name: "Cucumber", quantity: 60, unit: "g", grams: 60, practicalMeasure: "½ cup diced", category: "vegetable" },
+          { id: "black-pepper", name: "Black pepper", quantity: 0.25, unit: "tsp", grams: 0.5, practicalMeasure: "pinch", category: "seasoning" },
+          { id: "coriander", name: "Coriander", quantity: 1, unit: "tbsp", grams: 4, practicalMeasure: "1 tbsp", category: "herb" }
+        ],
+        steps: [
+          { order: 1, instruction: "Combine cooked rice, curd, and diced cucumber in a bowl.", timerSeconds: 45 },
+          { order: 2, instruction: "Halve the boiled eggs and place neatly on top.", timerSeconds: 30 },
+          { order: 3, instruction: "Dust generously with cracked black pepper and fresh coriander.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 340, proteinG: 23, carbsG: 31, fiberG: 2, netCarbsG: 29, fatG: 14 },
+        micronutrients: [
+          { nutrient: "Vitamin B12", amount: 1.8, unit: "µg", benefit: "Supports central nervous health." },
+          { nutrient: "Choline", amount: 250, unit: "mg", benefit: "Protects normal liver and brain metabolism." },
+          { nutrient: "Calcium", amount: 180, unit: "mg", benefit: "Strengthens bones and teeth." }
+        ]
+      },
+      {
+        id: "tomato-mozzarella-toast", title: "Tomato Mozzarella Toast",
+        description: "Melty mozzarella, warm juicy tomatoes, and fragrant fresh basil on toasted artisan bread.",
+        mode: "healthy", dietType: "vegetarian", activePrepMinutes: 2, cookMinutes: 4, totalMinutes: 6, servings: 1,
+        image: "https://images.unsplash.com/photo-1588137378633-dea1336ce1e2?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 spatula"],
+        ingredients: [
+          { id: "bread", name: "Whole-grain bread", quantity: 2, unit: "slices", grams: 60, practicalMeasure: "2 slices", category: "carbohydrate" },
+          { id: "tomato", name: "Tomato", quantity: 100, unit: "g", grams: 100, practicalMeasure: "1 medium tomato sliced", category: "vegetable" },
+          { id: "mozzarella", name: "Mozzarella", quantity: 60, unit: "g", grams: 60, practicalMeasure: "½ cup shredded or sliced", category: "dairy" },
+          { id: "olive-oil", name: "Olive oil", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "fat" },
+          { id: "black-pepper", name: "Black pepper", quantity: 0.25, unit: "tsp", grams: 0.5, practicalMeasure: "pinch", category: "seasoning" },
+          { id: "basil", name: "Basil", quantity: 1, unit: "tbsp", grams: 3, practicalMeasure: "few fresh leaves", category: "herb" }
+        ],
+        steps: [
+          { order: 1, instruction: "Brush bread with olive oil and toast one side in the pan.", timerSeconds: 60 },
+          { order: 2, instruction: "Flip bread, layer tomato slices and mozzarella on top.", timerSeconds: 30 },
+          { order: 3, instruction: "Cover the pan with a lid to melt cheese completely.", timerSeconds: 120 },
+          { order: 4, instruction: "Top with fresh basil and cracked black pepper.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 330, proteinG: 15, carbsG: 31, fiberG: 4, netCarbsG: 27, fatG: 17 },
+        micronutrients: [
+          { nutrient: "Calcium", amount: 280, unit: "mg", benefit: "Supports skeletal structure and joint health." },
+          { nutrient: "Vitamin C", amount: 18, unit: "mg", benefit: "Boosts immune defense and collagen synthesis." },
+          { nutrient: "Vitamin A", amount: 120, unit: "µg RAE", benefit: "Protects vision and mucosal tissues." }
+        ]
+      },
+      {
+        id: "egg-avocado-toast", title: "Egg Avocado Toast",
+        description: "Creamy smashed avocado topped with soft eggs, chili flakes, and zesty lemon.",
+        mode: "healthy", dietType: "eggetarian", activePrepMinutes: 2, cookMinutes: 6, totalMinutes: 8, servings: 1,
+        image: "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 toaster or pan"],
+        ingredients: [
+          { id: "eggs", name: "Eggs", quantity: 2, unit: "eggs", grams: 100, practicalMeasure: "2 eggs", category: "protein" },
+          { id: "bread", name: "Whole-grain bread", quantity: 2, unit: "slices", grams: 60, practicalMeasure: "2 slices", category: "carbohydrate" },
+          { id: "avocado", name: "Avocado", quantity: 70, unit: "g", grams: 70, practicalMeasure: "½ avocado", category: "fat" },
+          { id: "lemon", name: "Lemon juice", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "seasoning" },
+          { id: "black-pepper", name: "Black pepper", quantity: 0.25, unit: "tsp", grams: 0.5, practicalMeasure: "pinch", category: "seasoning" },
+          { id: "chili-flakes", name: "Chili flakes", quantity: 0.25, unit: "tsp", grams: 0.5, practicalMeasure: "pinch", category: "seasoning" }
+        ],
+        steps: [
+          { order: 1, instruction: "Toast bread slices until browned and crunchy.", timerSeconds: 90 },
+          { order: 2, instruction: "Mash avocado with lemon juice, salt, and pepper in a small bowl.", timerSeconds: 45 },
+          { order: 3, instruction: "Fry or poach the eggs to preferred yolk runny-ness.", timerSeconds: 120 },
+          { order: 4, instruction: "Spread avocado on toast, crown with eggs and red chili flakes.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 390, proteinG: 19, carbsG: 32, fiberG: 9, netCarbsG: 23, fatG: 23 },
+        micronutrients: [
+          { nutrient: "Potassium", amount: 550, unit: "mg", benefit: "Helps maintain normal blood pressure levels." },
+          { nutrient: "Folate", amount: 110, unit: "µg", benefit: "Promotes sustained healthy cell renewal." },
+          { nutrient: "Vitamin E", amount: 2.5, unit: "mg", benefit: "Lipid-soluble antioxidant shielding cell membranes." }
+        ]
+      },
+      {
+        id: "soy-chilli-tofu", title: "Soy Chilli Tofu",
+        description: "Seared crispy firm tofu cubes glazed in savory garlic, soy, and fiery chili flakes.",
+        mode: "healthy", dietType: "vegetarian", activePrepMinutes: 2, cookMinutes: 6, totalMinutes: 8, servings: 1,
+        image: "https://images.unsplash.com/photo-1546069901-d775a3c9e6c1?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 spatula"],
+        ingredients: [
+          { id: "tofu", name: "Firm tofu", quantity: 150, unit: "g", grams: 150, practicalMeasure: "about 1 cup cubed", category: "protein" },
+          { id: "bell-pepper", name: "Bell pepper", quantity: 70, unit: "g", grams: 70, practicalMeasure: "½ pepper diced", category: "vegetable" },
+          { id: "soy-sauce", name: "Soy sauce", quantity: 1, unit: "tbsp", grams: 15, practicalMeasure: "1 tbsp", category: "sauce" },
+          { id: "garlic", name: "Garlic", quantity: 1, unit: "clove", grams: 3, practicalMeasure: "1 clove minced", category: "aromatic" },
+          { id: "spring-onion", name: "Spring onion", quantity: 1, unit: "tbsp", grams: 6, practicalMeasure: "1 tbsp", category: "vegetable" },
+          { id: "chili-flakes", name: "Chili flakes", quantity: 0.5, unit: "tsp", grams: 1, practicalMeasure: "½ tsp", category: "seasoning" },
+          { id: "cooking-oil", name: "Cooking oil", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "fat" }
+        ],
+        steps: [
+          { order: 1, instruction: "Heat oil in skillet and sear cubed tofu on high until edges are crispy.", timerSeconds: 150 },
+          { order: 2, instruction: "Add minced garlic, bell peppers, and chili flakes.", timerSeconds: 60 },
+          { order: 3, instruction: "Pour in soy sauce and toss until glazed and bubbly.", timerSeconds: 60 },
+          { order: 4, instruction: "Finish with chopped spring onions.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 380, proteinG: 24, carbsG: 16, fiberG: 4, netCarbsG: 12, fatG: 25 },
+        micronutrients: [
+          { nutrient: "Calcium", amount: 250, unit: "mg", benefit: "Essential mineral for bone density." },
+          { nutrient: "Iron", amount: 4, unit: "mg", benefit: "Supplies essential energy to active muscles." },
+          { nutrient: "Magnesium", amount: 80, unit: "mg", benefit: "Regulates biochemical nerve pathways." }
+        ]
+      },
+      {
+        id: "warm-chicken-salad", title: "Warm Chicken Salad",
+        description: "Fresh crunchy garden salad base topped with warm, pan-seared tender chicken bites.",
+        mode: "healthy", dietType: "non_vegetarian", activePrepMinutes: 3, cookMinutes: 5, totalMinutes: 8, servings: 1,
+        image: "https://images.unsplash.com/photo-1546793665-c74683f339c1?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 bowl"],
+        ingredients: [
+          { id: "chicken", name: "Cooked chicken", quantity: 120, unit: "g", grams: 120, practicalMeasure: "1 generous palm", category: "protein" },
+          { id: "lettuce", name: "Lettuce", quantity: 60, unit: "g", grams: 60, practicalMeasure: "2 generous handfuls", category: "vegetable" },
+          { id: "tomato", name: "Tomato", quantity: 80, unit: "g", grams: 80, practicalMeasure: "1 small chopped", category: "vegetable" },
+          { id: "cucumber", name: "Cucumber", quantity: 80, unit: "g", grams: 80, practicalMeasure: "½ cucumber sliced", category: "vegetable" },
+          { id: "lemon", name: "Lemon juice", quantity: 1, unit: "tbsp", grams: 15, practicalMeasure: "1 tbsp juice", category: "seasoning" },
+          { id: "olive-oil", name: "Olive oil", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "fat" },
+          { id: "black-pepper", name: "Black pepper", quantity: 0.25, unit: "tsp", grams: 0.5, practicalMeasure: "pinch", category: "seasoning" }
+        ],
+        steps: [
+          { order: 1, instruction: "Warm the cooked chicken in a hot skillet with a touch of olive oil and pepper.", timerSeconds: 90 },
+          { order: 2, instruction: "Chop lettuce, tomatoes, and cucumbers; place in your main salad bowl.", timerSeconds: 60 },
+          { order: 3, instruction: "Whisk lemon juice, olive oil, and black pepper for the dressing.", timerSeconds: 30 },
+          { order: 4, instruction: "Top cool greens with hot chicken and drizzle dressing immediately.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 350, proteinG: 33, carbsG: 12, fiberG: 4, netCarbsG: 8, fatG: 18 },
+        micronutrients: [
+          { nutrient: "Vitamin C", amount: 30, unit: "mg", benefit: "Potent free-radical scavenger." },
+          { nutrient: "Vitamin B6", amount: 0.8, unit: "mg", benefit: "Boosts steady amino acid synthesis." },
+          { nutrient: "Niacin", amount: 12, unit: "mg", benefit: "Supports cellular energy metabolism." }
+        ]
+      },
+      {
+        id: "masala-paneer-toast", title: "Masala Paneer Toast",
+        description: "Indian street-style spiced crumbled paneer with buttery toasted bread.",
+        mode: "craving", dietType: "vegetarian", activePrepMinutes: 3, cookMinutes: 5, totalMinutes: 8, servings: 1,
+        image: "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 spatula"], cheeky: "Okay chef, calm down.",
+        ingredients: [
+          { id: "paneer", name: "Paneer", quantity: 100, unit: "g", grams: 100, practicalMeasure: "about ¾ cup crumbled", category: "protein" },
+          { id: "bread", name: "Whole-grain bread", quantity: 2, unit: "slices", grams: 60, practicalMeasure: "2 slices", category: "carbohydrate" },
+          { id: "butter", name: "Butter", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "fat" },
+          { id: "onion", name: "Onion", quantity: 50, unit: "g", grams: 50, practicalMeasure: "½ small onion chopped", category: "vegetable" },
+          { id: "green-chili", name: "Green chili", quantity: 5, unit: "g", grams: 5, practicalMeasure: "1 small chopped", category: "seasoning" },
+          { id: "garam-masala", name: "Garam masala", quantity: 0.5, unit: "tsp", grams: 1, practicalMeasure: "½ tsp", category: "seasoning" }
+        ],
+        steps: [
+          { order: 1, instruction: "Melt butter in skillet, add onions and green chilies until translucent.", timerSeconds: 90 },
+          { order: 2, instruction: "Add crumbled paneer, garam masala, and a pinch of salt. Sauté briefly.", timerSeconds: 90 },
+          { order: 3, instruction: "Toast bread in the buttery spicy drippings in the pan.", timerSeconds: 60 },
+          { order: 4, instruction: "Pile the masala paneer on hot toast and serve crisp.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 470, proteinG: 22, carbsG: 32, fiberG: 4, netCarbsG: 28, fatG: 29 },
+        micronutrients: [
+          { nutrient: "Calcium", amount: 300, unit: "mg", benefit: "Promotes strong teeth and skeletal matrix." },
+          { nutrient: "Vitamin B12", amount: 1.2, unit: "µg", benefit: "Essential co-factor in cell metabolism." },
+          { nutrient: "Phosphorus", amount: 310, unit: "mg", benefit: "Assists kidney filtering and muscle recovery." }
+        ]
+      },
+      {
+        id: "cheesy-corn-rice", title: "Cheesy Corn Rice",
+        description: "Sweet corn and buttery melted cheddar blended into steaming rice with chili flakes.",
+        mode: "craving", dietType: "vegetarian", activePrepMinutes: 2, cookMinutes: 5, totalMinutes: 7, servings: 1,
+        image: "https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 spoon"],
+        ingredients: [
+          { id: "cooked-rice", name: "Cooked rice", quantity: 150, unit: "g", grams: 150, practicalMeasure: "1 coffee mug", category: "carbohydrate" },
+          { id: "corn", name: "Corn", quantity: 80, unit: "g", grams: 80, practicalMeasure: "½ cup sweet corn", category: "vegetable" },
+          { id: "cheese", name: "Cheese", quantity: 50, unit: "g", grams: 50, practicalMeasure: "½ cup shredded", category: "dairy" },
+          { id: "butter", name: "Butter", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "fat" },
+          { id: "chili-flakes", name: "Chili flakes", quantity: 0.5, unit: "tsp", grams: 1, practicalMeasure: "½ tsp", category: "seasoning" },
+          { id: "spring-onion", name: "Spring onion", quantity: 1, unit: "tbsp", grams: 6, practicalMeasure: "1 tbsp", category: "vegetable" }
+        ],
+        steps: [
+          { order: 1, instruction: "Melt butter in a skillet and add sweet corn to blister lightly.", timerSeconds: 60 },
+          { order: 2, instruction: "Stir in the cooked rice and chili flakes until heated through.", timerSeconds: 90 },
+          { order: 3, instruction: "Fold in shredded cheese, cover pan, and let melt into stretchy ribbons.", timerSeconds: 90 },
+          { order: 4, instruction: "Sprinkle spring onions on top and eat right out of the skillet.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 500, proteinG: 16, carbsG: 55, fiberG: 4, netCarbsG: 51, fatG: 24 },
+        micronutrients: [
+          { nutrient: "Calcium", amount: 300, unit: "mg", benefit: "Supports healthy bone maintenance." },
+          { nutrient: "Vitamin B12", amount: 1.0, unit: "µg", benefit: "Helps in energy generation from food." },
+          { nutrient: "Magnesium", amount: 50, unit: "mg", benefit: "Aids deep muscular relaxation." }
+        ]
+      },
+      {
+        id: "butter-garlic-noodles", title: "Butter Garlic Noodles",
+        description: "Silky noodles tossed in rich golden garlic butter, soy sauce, and scallions.",
+        mode: "craving", dietType: "vegetarian", activePrepMinutes: 2, cookMinutes: 6, totalMinutes: 8, servings: 1,
+        image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 tongs"], cheeky: "That was suspiciously easy.",
+        ingredients: [
+          { id: "noodles", name: "Cooked noodles", quantity: 180, unit: "g", grams: 180, practicalMeasure: "1 generous bowl", category: "carbohydrate" },
+          { id: "butter", name: "Butter", quantity: 1, unit: "tbsp", grams: 14, practicalMeasure: "1 tbsp", category: "fat" },
+          { id: "garlic", name: "Garlic", quantity: 2, unit: "cloves", grams: 6, practicalMeasure: "2 cloves minced", category: "aromatic" },
+          { id: "soy-sauce", name: "Soy sauce", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "sauce" },
+          { id: "chili-flakes", name: "Chili flakes", quantity: 0.5, unit: "tsp", grams: 1, practicalMeasure: "½ tsp", category: "seasoning" },
+          { id: "spring-onion", name: "Spring onion", quantity: 1, unit: "tbsp", grams: 6, practicalMeasure: "1 tbsp", category: "vegetable" }
+        ],
+        steps: [
+          { order: 1, instruction: "Melt butter in a pan over low heat; add minced garlic until pale gold.", timerSeconds: 90 },
+          { order: 2, instruction: "Add soy sauce and chili flakes, letting them sizzle with the garlic.", timerSeconds: 30 },
+          { order: 3, instruction: "Toss in cooked noodles and coat every strand in glossy butter sauce.", timerSeconds: 90 },
+          { order: 4, instruction: "Shower with spring onions and devour immediately.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 520, proteinG: 12, carbsG: 68, fiberG: 3, netCarbsG: 65, fatG: 21 },
+        micronutrients: [
+          { nutrient: "Selenium", amount: 35, unit: "µg", benefit: "Boosts standard cellular health." },
+          { nutrient: "Iron", amount: 3, unit: "mg", benefit: "Aids internal vital oxygen distribution." },
+          { nutrient: "Manganese", amount: 0.8, unit: "mg", benefit: "Assists connective tissue development." }
+        ]
+      },
+      {
+        id: "spicy-paneer-wrap", title: "Spicy Paneer Wrap",
+        description: "Fiery hot sauce-glazed paneer cubes, sautéed peppers, and melted cheese in a toasted wrap.",
+        mode: "craving", dietType: "vegetarian", activePrepMinutes: 3, cookMinutes: 6, totalMinutes: 9, servings: 1,
+        image: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 spatula"],
+        ingredients: [
+          { id: "paneer", name: "Paneer", quantity: 100, unit: "g", grams: 100, practicalMeasure: "about ¾ cup cubed", category: "protein" },
+          { id: "wrap", name: "Tortilla wrap", quantity: 1, unit: "wrap", grams: 60, practicalMeasure: "1 wrap", category: "carbohydrate" },
+          { id: "cheese", name: "Cheese", quantity: 30, unit: "g", grams: 30, practicalMeasure: "¼ cup shredded", category: "dairy" },
+          { id: "hot-sauce", name: "Hot sauce", quantity: 1, unit: "tbsp", grams: 15, practicalMeasure: "1 tbsp", category: "sauce" },
+          { id: "onion", name: "Onion", quantity: 40, unit: "g", grams: 40, practicalMeasure: "½ small onion sliced", category: "vegetable" },
+          { id: "bell-pepper", name: "Bell pepper", quantity: 50, unit: "g", grams: 50, practicalMeasure: "½ cup sliced", category: "vegetable" }
+        ],
+        steps: [
+          { order: 1, instruction: "Sauté onions and bell peppers in a hot skillet until charred.", timerSeconds: 90 },
+          { order: 2, instruction: "Add paneer cubes and hot sauce; stir briskly to coat evenly.", timerSeconds: 90 },
+          { order: 3, instruction: "Place mixture onto tortilla, top with cheese, and roll into a tight wrap.", timerSeconds: 45 },
+          { order: 4, instruction: "Toast the rolled wrap on the pan until the exterior is crisp and cheese melts.", timerSeconds: 60 }
+        ],
+        nutrition: { calories: 540, proteinG: 24, carbsG: 39, fiberG: 4, netCarbsG: 35, fatG: 32 },
+        micronutrients: [
+          { nutrient: "Calcium", amount: 350, unit: "mg", benefit: "Strengthens teeth and bone density." },
+          { nutrient: "Vitamin B12", amount: 1.4, unit: "µg", benefit: "Helps maintain metabolic baseline." },
+          { nutrient: "Vitamin A", amount: 200, unit: "µg RAE", benefit: "Encourages cellular tissue turnover." }
+        ]
+      },
+      {
+        id: "cheesy-egg-rice", title: "Cheesy Egg Rice",
+        description: "Decadent scrambled egg fried rice loaded with melted cheddar and rich butter.",
+        mode: "craving", dietType: "eggetarian", activePrepMinutes: 2, cookMinutes: 6, totalMinutes: 8, servings: 1,
+        image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 spatula"],
+        ingredients: [
+          { id: "eggs", name: "Eggs", quantity: 2, unit: "eggs", grams: 100, practicalMeasure: "2 eggs", category: "protein" },
+          { id: "cooked-rice", name: "Cooked rice", quantity: 150, unit: "g", grams: 150, practicalMeasure: "1 coffee mug", category: "carbohydrate" },
+          { id: "cheese", name: "Cheese", quantity: 40, unit: "g", grams: 40, practicalMeasure: "½ cup shredded", category: "dairy" },
+          { id: "butter", name: "Butter", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "fat" },
+          { id: "black-pepper", name: "Black pepper", quantity: 0.25, unit: "tsp", grams: 0.5, practicalMeasure: "pinch", category: "seasoning" },
+          { id: "spring-onion", name: "Spring onion", quantity: 1, unit: "tbsp", grams: 6, practicalMeasure: "1 tbsp", category: "vegetable" }
+        ],
+        steps: [
+          { order: 1, instruction: "Melt butter in skillet over medium heat.", timerSeconds: 30 },
+          { order: 2, instruction: "Scramble eggs softly until curds form.", timerSeconds: 60 },
+          { order: 3, instruction: "Fold in the cooked rice and cracked black pepper.", timerSeconds: 90 },
+          { order: 4, instruction: "Turn off heat, stir in cheese until gooey and stringy, top with scallions.", timerSeconds: 60 }
+        ],
+        nutrition: { calories: 550, proteinG: 27, carbsG: 40, fiberG: 2, netCarbsG: 38, fatG: 31 },
+        micronutrients: [
+          { nutrient: "Calcium", amount: 300, unit: "mg", benefit: "Enhances bone density and stability." },
+          { nutrient: "Vitamin B12", amount: 1.8, unit: "µg", benefit: "Vital for cognitive nervous balance." },
+          { nutrient: "Choline", amount: 250, unit: "mg", benefit: "Supports structural lipid bilayers." }
+        ]
+      },
+      {
+        id: "chilli-egg-noodles", title: "Chilli Egg Noodles",
+        description: "Egg-scrambled noodles tossed in garlic, savory chili sauce, and scallions.",
+        mode: "craving", dietType: "eggetarian", activePrepMinutes: 2, cookMinutes: 7, totalMinutes: 9, servings: 1,
+        image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 wok or skillet", "1 spatula"],
+        ingredients: [
+          { id: "eggs", name: "Eggs", quantity: 2, unit: "eggs", grams: 100, practicalMeasure: "2 eggs", category: "protein" },
+          { id: "noodles", name: "Cooked noodles", quantity: 180, unit: "g", grams: 180, practicalMeasure: "1 generous bowl", category: "carbohydrate" },
+          { id: "chili-sauce", name: "Chili sauce", quantity: 1, unit: "tbsp", grams: 15, practicalMeasure: "1 tbsp", category: "sauce" },
+          { id: "soy-sauce", name: "Soy sauce", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "sauce" },
+          { id: "garlic", name: "Garlic", quantity: 1, unit: "clove", grams: 3, practicalMeasure: "1 clove minced", category: "aromatic" },
+          { id: "spring-onion", name: "Spring onion", quantity: 1, unit: "tbsp", grams: 6, practicalMeasure: "1 tbsp", category: "vegetable" },
+          { id: "cooking-oil", name: "Cooking oil", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "fat" }
+        ],
+        steps: [
+          { order: 1, instruction: "Heat oil, fry garlic, and quickly scramble eggs into soft curds.", timerSeconds: 60 },
+          { order: 2, instruction: "Toss in cooked noodles, chili sauce, and soy sauce.", timerSeconds: 60 },
+          { order: 3, instruction: "Stir-fry aggressively on high heat for that smoky street-style char.", timerSeconds: 120 },
+          { order: 4, instruction: "Garnish with fresh spring onions and serve scorching hot.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 530, proteinG: 25, carbsG: 60, fiberG: 3, netCarbsG: 57, fatG: 22 },
+        micronutrients: [
+          { nutrient: "Selenium", amount: 40, unit: "µg", benefit: "Guards cell tissues against oxidation." },
+          { nutrient: "Choline", amount: 250, unit: "mg", benefit: "Promotes healthy neurological speed." },
+          { nutrient: "Vitamin B12", amount: 1.5, unit: "µg", benefit: "Assists routine red blood cell output." }
+        ]
+      },
+      {
+        id: "butter-chicken-rice", title: "Butter Chicken Rice",
+        description: "Quick-fix creamy tomato butter chicken sauce smothered over hot cooked rice.",
+        mode: "craving", dietType: "non_vegetarian", activePrepMinutes: 2, cookMinutes: 8, totalMinutes: 10, servings: 1,
+        image: "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 saucepan or skillet", "1 spoon"],
+        ingredients: [
+          { id: "chicken", name: "Cooked chicken", quantity: 120, unit: "g", grams: 120, practicalMeasure: "1 generous palm", category: "protein" },
+          { id: "cooked-rice", name: "Cooked rice", quantity: 150, unit: "g", grams: 150, practicalMeasure: "1 coffee mug", category: "carbohydrate" },
+          { id: "butter", name: "Butter", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "fat" },
+          { id: "tomato-sauce", name: "Tomato sauce", quantity: 60, unit: "g", grams: 60, practicalMeasure: "¼ cup puree/sauce", category: "sauce" },
+          { id: "cream", name: "Cream", quantity: 30, unit: "g", grams: 30, practicalMeasure: "2 tbsp", category: "dairy" },
+          { id: "garam-masala", name: "Garam masala", quantity: 0.5, unit: "tsp", grams: 1, practicalMeasure: "½ tsp", category: "seasoning" }
+        ],
+        steps: [
+          { order: 1, instruction: "Melt butter in a pan; simmer tomato sauce with garam masala.", timerSeconds: 90 },
+          { order: 2, instruction: "Stir in rich cream to create a silky, velvety orange sauce.", timerSeconds: 60 },
+          { order: 3, instruction: "Add shredded chicken, coating every piece thoroughly.", timerSeconds: 90 },
+          { order: 4, instruction: "Pour rich butter chicken gravy over a bowl of warm rice.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 590, proteinG: 32, carbsG: 48, fiberG: 2, netCarbsG: 46, fatG: 28 },
+        micronutrients: [
+          { nutrient: "Vitamin B6", amount: 0.8, unit: "mg", benefit: "Assists normal neurotransmission." },
+          { nutrient: "Vitamin B12", amount: 1.3, unit: "µg", benefit: "Supplies foundational metabolic energy." },
+          { nutrient: "Selenium", amount: 38, unit: "µg", benefit: "Safeguards internal tissue health." }
+        ]
+      },
+      {
+        id: "chicken-cheese-wrap", title: "Chicken Cheese Wrap",
+        description: "Warm seasoned chicken, melted cheese, crisp onions, and creamy chili mayo wrapped to perfection.",
+        mode: "craving", dietType: "non_vegetarian", activePrepMinutes: 3, cookMinutes: 6, totalMinutes: 9, servings: 1,
+        image: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 tongs"],
+        ingredients: [
+          { id: "chicken", name: "Cooked chicken", quantity: 120, unit: "g", grams: 120, practicalMeasure: "1 generous palm", category: "protein" },
+          { id: "wrap", name: "Tortilla wrap", quantity: 1, unit: "wrap", grams: 60, practicalMeasure: "1 wrap", category: "carbohydrate" },
+          { id: "cheese", name: "Cheese", quantity: 40, unit: "g", grams: 40, practicalMeasure: "½ cup shredded", category: "dairy" },
+          { id: "mayo", name: "Mayonnaise", quantity: 1, unit: "tbsp", grams: 15, practicalMeasure: "1 tbsp", category: "sauce" },
+          { id: "onion", name: "Onion", quantity: 40, unit: "g", grams: 40, practicalMeasure: "½ small sliced", category: "vegetable" },
+          { id: "chili-sauce", name: "Chili sauce", quantity: 1, unit: "tbsp", grams: 15, practicalMeasure: "1 tbsp", category: "sauce" }
+        ],
+        steps: [
+          { order: 1, instruction: "Warm chicken in pan with onions and chili sauce.", timerSeconds: 90 },
+          { order: 2, instruction: "Mix mayonnaise with extra chili sauce for the base spread.", timerSeconds: 30 },
+          { order: 3, instruction: "Assemble wrap: sauce, chicken, onions, and lots of cheese.", timerSeconds: 45 },
+          { order: 4, instruction: "Grill wrap in the pan until crispy and melted inside.", timerSeconds: 90 }
+        ],
+        nutrition: { calories: 610, proteinG: 34, carbsG: 39, fiberG: 3, netCarbsG: 36, fatG: 35 },
+        micronutrients: [
+          { nutrient: "Calcium", amount: 300, unit: "mg", benefit: "Fortifies bone minerals." },
+          { nutrient: "Vitamin B12", amount: 1.5, unit: "µg", benefit: "Boosts steady energy." },
+          { nutrient: "Niacin", amount: 12, unit: "mg", benefit: "Supports healthy cell function." }
+        ]
+      },
+      {
+        id: "creamy-paneer-rice", title: "Creamy Paneer Rice",
+        description: "Paneer cubes swimming in rich, black-pepper cream sauce tossed with fragrant rice.",
+        mode: "craving", dietType: "vegetarian", activePrepMinutes: 2, cookMinutes: 7, totalMinutes: 9, servings: 1,
+        image: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 spatula"],
+        ingredients: [
+          { id: "paneer", name: "Paneer", quantity: 100, unit: "g", grams: 100, practicalMeasure: "about ¾ cup cubed", category: "protein" },
+          { id: "cooked-rice", name: "Cooked rice", quantity: 150, unit: "g", grams: 150, practicalMeasure: "1 coffee mug", category: "carbohydrate" },
+          { id: "cream", name: "Cream", quantity: 40, unit: "g", grams: 40, practicalMeasure: "3 tbsp heavy cream", category: "dairy" },
+          { id: "butter", name: "Butter", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "fat" },
+          { id: "black-pepper", name: "Black pepper", quantity: 0.25, unit: "tsp", grams: 0.5, practicalMeasure: "pinch", category: "seasoning" },
+          { id: "spring-onion", name: "Spring onion", quantity: 1, unit: "tbsp", grams: 6, practicalMeasure: "1 tbsp", category: "vegetable" }
+        ],
+        steps: [
+          { order: 1, instruction: "Melt butter and pan-fry paneer cubes until lightly golden.", timerSeconds: 90 },
+          { order: 2, instruction: "Pour in cream and cracked black pepper; reduce slightly until thick.", timerSeconds: 90 },
+          { order: 3, instruction: "Stir in cooked rice until coated in luxurious cream sauce.", timerSeconds: 60 },
+          { order: 4, instruction: "Garnish with scallions and enjoy hot.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 560, proteinG: 25, carbsG: 40, fiberG: 2, netCarbsG: 38, fatG: 35 },
+        micronutrients: [
+          { nutrient: "Calcium", amount: 300, unit: "mg", benefit: "Promotes skeletal density." },
+          { nutrient: "Vitamin B12", amount: 1.2, unit: "µg", benefit: "Supports nerve signaling." },
+          { nutrient: "Phosphorus", amount: 300, unit: "mg", benefit: "Facilitates vital cellular repair." }
+        ]
+      },
+      {
+        id: "pizza-egg-toast", title: "Pizza Egg Toast",
+        description: "The ultimate cheat code: toasted bread loaded with rich pizza sauce, fried eggs, and broiled mozzarella.",
+        mode: "craving", dietType: "eggetarian", activePrepMinutes: 2, cookMinutes: 5, totalMinutes: 7, servings: 1,
+        image: "https://images.unsplash.com/photo-1588137378633-dea1336ce1e2?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet with lid", "1 spatula"], cheeky: "You actually made dinner. Iconic.",
+        ingredients: [
+          { id: "eggs", name: "Eggs", quantity: 2, unit: "eggs", grams: 100, practicalMeasure: "2 eggs", category: "protein" },
+          { id: "bread", name: "Whole-grain bread", quantity: 2, unit: "slices", grams: 60, practicalMeasure: "2 slices", category: "carbohydrate" },
+          { id: "pizza-sauce", name: "Pizza sauce", quantity: 40, unit: "g", grams: 40, practicalMeasure: "2 tbsp", category: "sauce" },
+          { id: "mozzarella", name: "Mozzarella", quantity: 50, unit: "g", grams: 50, practicalMeasure: "½ cup shredded", category: "dairy" },
+          { id: "oregano", name: "Oregano", quantity: 0.5, unit: "tsp", grams: 0.5, practicalMeasure: "pinch", category: "seasoning" },
+          { id: "chili-flakes", name: "Chili flakes", quantity: 0.25, unit: "tsp", grams: 0.5, practicalMeasure: "pinch", category: "seasoning" }
+        ],
+        steps: [
+          { order: 1, instruction: "Spread pizza sauce generously over toasted bread slices.", timerSeconds: 30 },
+          { order: 2, instruction: "Fry two sunny eggs in a hot pan.", timerSeconds: 90 },
+          { order: 3, instruction: "Place eggs onto sauced toast, smother with mozzarella, oregano, and chili.", timerSeconds: 45 },
+          { order: 4, instruction: "Cover in pan on low heat until mozzarella is completely bubbling.", timerSeconds: 90 }
+        ],
+        nutrition: { calories: 480, proteinG: 21, carbsG: 34, fiberG: 4, netCarbsG: 30, fatG: 27 },
+        micronutrients: [
+          { nutrient: "Calcium", amount: 320, unit: "mg", benefit: "Fortifies bones and teeth." },
+          { nutrient: "Vitamin B12", amount: 1.7, unit: "µg", benefit: "Preserves neural stamina." },
+          { nutrient: "Selenium", amount: 35, unit: "µg", benefit: "Defends cells against oxidative strain." }
+        ]
+      },
+      {
+        id: "chicken-cheese-rice", title: "Chicken Cheese Rice",
+        description: "Pan-crisped chicken and buttery rice folded with gooey cheddar and crushed red pepper.",
+        mode: "craving", dietType: "non_vegetarian", activePrepMinutes: 2, cookMinutes: 7, totalMinutes: 9, servings: 1,
+        image: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 spatula"],
+        ingredients: [
+          { id: "chicken", name: "Cooked chicken", quantity: 120, unit: "g", grams: 120, practicalMeasure: "1 generous palm", category: "protein" },
+          { id: "cooked-rice", name: "Cooked rice", quantity: 150, unit: "g", grams: 150, practicalMeasure: "1 coffee mug", category: "carbohydrate" },
+          { id: "cheese", name: "Cheese", quantity: 50, unit: "g", grams: 50, practicalMeasure: "½ cup shredded", category: "dairy" },
+          { id: "butter", name: "Butter", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "fat" },
+          { id: "chili-flakes", name: "Chili flakes", quantity: 0.5, unit: "tsp", grams: 1, practicalMeasure: "½ tsp", category: "seasoning" },
+          { id: "spring-onion", name: "Spring onion", quantity: 1, unit: "tbsp", grams: 6, practicalMeasure: "1 tbsp", category: "vegetable" }
+        ],
+        steps: [
+          { order: 1, instruction: "Melt butter in skillet; add chicken and chili flakes to warm and crisp.", timerSeconds: 90 },
+          { order: 2, instruction: "Toss in cooked rice until sizzling.", timerSeconds: 60 },
+          { order: 3, instruction: "Stir in shredded cheese until it binds everything into rich, melty clusters.", timerSeconds: 90 },
+          { order: 4, instruction: "Top with fresh spring onions.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 600, proteinG: 36, carbsG: 44, fiberG: 2, netCarbsG: 42, fatG: 31 },
+        micronutrients: [
+          { nutrient: "Calcium", amount: 350, unit: "mg", benefit: "Promotes skeletal integrity." },
+          { nutrient: "Vitamin B12", amount: 1.5, unit: "µg", benefit: "Sustains healthy blood markers." },
+          { nutrient: "Selenium", amount: 40, unit: "µg", benefit: "Boosts immune defense." }
+        ]
+      },
+      {
+        id: "peanut-tofu-noodles", title: "Peanut Tofu Noodles",
+        description: "Silky noodles and crispy tofu cubes smothered in a rich, savory peanut-soy glaze with cool cucumber.",
+        mode: "craving", dietType: "vegetarian", activePrepMinutes: 3, cookMinutes: 7, totalMinutes: 10, servings: 1,
+        image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 bowl"],
+        ingredients: [
+          { id: "tofu", name: "Firm tofu", quantity: 120, unit: "g", grams: 120, practicalMeasure: "about ¾ cup cubed", category: "protein" },
+          { id: "noodles", name: "Cooked noodles", quantity: 150, unit: "g", grams: 150, practicalMeasure: "1 medium bowl", category: "carbohydrate" },
+          { id: "peanut-butter", name: "Peanut butter", quantity: 20, unit: "g", grams: 20, practicalMeasure: "1 generous tbsp", category: "fat" },
+          { id: "soy-sauce", name: "Soy sauce", quantity: 1, unit: "tbsp", grams: 15, practicalMeasure: "1 tbsp", category: "sauce" },
+          { id: "cucumber", name: "Cucumber", quantity: 60, unit: "g", grams: 60, practicalMeasure: "½ cup julienned", category: "vegetable" },
+          { id: "spring-onion", name: "Spring onion", quantity: 1, unit: "tbsp", grams: 6, practicalMeasure: "1 tbsp", category: "vegetable" }
+        ],
+        steps: [
+          { order: 1, instruction: "Sear cubed tofu in a dry non-stick skillet until golden on all sides.", timerSeconds: 150 },
+          { order: 2, instruction: "Whisk peanut butter, soy sauce, and 2 tbsp warm water into a thick sauce.", timerSeconds: 45 },
+          { order: 3, instruction: "Toss warm noodles and seared tofu in the rich peanut glaze.", timerSeconds: 60 },
+          { order: 4, instruction: "Top with refreshing crisp cucumber and sliced scallions.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 460, proteinG: 26, carbsG: 48, fiberG: 5, netCarbsG: 43, fatG: 20 },
+        micronutrients: [
+          { nutrient: "Magnesium", amount: 110, unit: "mg", benefit: "Aids muscle contraction and relaxation." },
+          { nutrient: "Iron", amount: 4, unit: "mg", benefit: "Powers steady oxygen delivery." },
+          { nutrient: "Calcium", amount: 220, unit: "mg", benefit: "Supplies essential bone strength." }
+        ]
+      },
+      {
+        id: "chicken-egg-fried-rice", title: "Chicken Egg Fried Rice",
+        description: "The double-protein king: savory shredded chicken, fluffy scrambled eggs, and soy-tossed rice.",
+        mode: "craving", dietType: "non_vegetarian", activePrepMinutes: 2, cookMinutes: 8, totalMinutes: 10, servings: 1,
+        image: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80",
+        equipment: ["1 skillet", "1 spatula"], cheeky: "Dinner without the drama.",
+        ingredients: [
+          { id: "chicken", name: "Cooked chicken", quantity: 100, unit: "g", grams: 100, practicalMeasure: "1 palm size", category: "protein" },
+          { id: "eggs", name: "Eggs", quantity: 2, unit: "eggs", grams: 100, practicalMeasure: "2 eggs", category: "protein" },
+          { id: "cooked-rice", name: "Cooked rice", quantity: 150, unit: "g", grams: 150, practicalMeasure: "1 coffee mug", category: "carbohydrate" },
+          { id: "soy-sauce", name: "Soy sauce", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "sauce" },
+          { id: "cooking-oil", name: "Cooking oil", quantity: 1, unit: "tsp", grams: 5, practicalMeasure: "1 tsp", category: "fat" },
+          { id: "spring-onion", name: "Spring onion", quantity: 1, unit: "tbsp", grams: 6, practicalMeasure: "1 tbsp", category: "vegetable" },
+          { id: "black-pepper", name: "Black pepper", quantity: 0.25, unit: "tsp", grams: 0.5, practicalMeasure: "pinch", category: "seasoning" }
+        ],
+        steps: [
+          { order: 1, instruction: "Heat oil in skillet; scramble eggs lightly and push to the side.", timerSeconds: 60 },
+          { order: 2, instruction: "Add shredded chicken and rice, stir-frying over high heat.", timerSeconds: 120 },
+          { order: 3, instruction: "Drizzle soy sauce and crack fresh black pepper over everything.", timerSeconds: 45 },
+          { order: 4, instruction: "Toss vigorously with scallions and serve hot.", timerSeconds: 30 }
+        ],
+        nutrition: { calories: 510, proteinG: 40, carbsG: 42, fiberG: 2, netCarbsG: 40, fatG: 20 },
+        micronutrients: [
+          { nutrient: "Vitamin B12", amount: 2.1, unit: "µg", benefit: "Supplies essential nervous vitality." },
+          { nutrient: "Selenium", amount: 55, unit: "µg", benefit: "Powerful whole-body antioxidant." },
+          { nutrient: "Choline", amount: 300, unit: "mg", benefit: "Supports sharp cognitive focus." }
+        ]
+      }
+    ];
+
+    const PANTRY_STAPLES = [
+      "Eggs", "Cooked rice", "Cooking oil", "Soy sauce", "Black pepper", "Spring onion",
+      "Paneer", "Bell pepper", "Cooked chickpeas", "Plain curd", "Cumin", "Coriander",
+      "Whole-grain bread", "Spinach", "Olive oil", "Canned tuna, drained", "Cucumber",
+      "Lemon juice", "Cooked chicken", "Tortilla wrap", "Plain yogurt", "Lettuce",
+      "Garlic", "Tomato", "Mozzarella", "Avocado", "Chili flakes", "Firm tofu",
+      "Butter", "Onion", "Green chili", "Garam masala", "Corn", "Cheese",
+      "Cooked noodles", "Hot sauce", "Chili sauce", "Tomato sauce", "Cream",
+      "Mayonnaise", "Pizza sauce", "Oregano", "Peanut butter"
+    ];
+
+    // ==========================================
+    // 2. STATE MANAGEMENT & LOCAL STORAGE
+    // ==========================================
+    function getStored(key, def) {
+      try {
+        const val = localStorage.getItem(key);
+        return val ? JSON.parse(val) : def;
+      } catch (e) { return def; }
+    }
+    function setStored(key, val) {
+      try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
+    }
+
+    let state = {
+      view: 'home', // home, discover, recipe, cooking, pantry, saved, settings, create
+      mode: getStored('sass-sizzle-mode', 'healthy'),
+      profile: getStored('sass-sizzle-profile', {
+        name: 'Chef',
+        diet: 'vegetarian',
+        maxTime: 0,
+        highProtein: false,
+        equipment: ["Skillet", "Saucepan", "Microwave", "Oven", "Air fryer", "Blender"],
+        measurement: 'both' // metric, household, both
+      }),
+      pantry: getStored('sass-sizzle-pantry', []),
+      saved: getStored('sass-sizzle-saved', []),
+      notes: getStored('sass-sizzle-notes', {}),
+      ratings: getStored('sass-sizzle-ratings', {}),
+      history: getStored('sass-sizzle-history', []),
+      customRecipes: getStored('sass-sizzle-custom-recipes', []),
+      activeRecipeId: null,
+      servings: 1,
+      ingredientDeltas: {}, // custom local quantity overrides { ingredientId: number }
+      // Discover Filters
+      searchQuery: '',
+      filterMood: 'all',
+      filterDiet: 'all',
+      filterTime: 0,
+      filterProtein: false,
+      sortBy: 'recommended',
+      // Cooking State
+      cookingStep: 0,
+      cookingTimerEnd: null,
+      cookingTimerRemaining: 0,
+      cookingTimerRunning: false,
+      cookingTimerInterval: null
+    };
+
+    // ==========================================
+    // 3. SOUND SYNTHESIZER (NO EXTERNAL AUDIO FILES)
+    // ==========================================
+    function playBeep() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.8);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.8);
+      } catch (e) {}
+    }
+
+    // ==========================================
+    // 4. CORE SCORING ALGORITHM
+    // ==========================================
+    function getAllRecipes() {
+      return [...RECIPES, ...state.customRecipes];
+    }
+
+    function calculateRecipeScore(recipe) {
+      let score = 0;
+      // 1. Mode Match
+      if (recipe.mode === state.mode) score += 30;
+      // 2. Diet Match
+      if (state.profile.diet === 'vegetarian') {
+        if (recipe.dietType === 'vegetarian') score += 20;
+        else score -= 50;
+      } else if (state.profile.diet === 'eggetarian') {
+        if (recipe.dietType === 'vegetarian' || recipe.dietType === 'eggetarian') score += 20;
+        else score -= 40;
+      } else {
+        score += 20;
+      }
+      // 3. Time Match
+      if (state.profile.maxTime > 0) {
+        if (recipe.totalMinutes <= state.profile.maxTime) score += 15;
+      } else {
+        score += 10;
+      }
+      // 4. Protein preference
+      if (state.profile.highProtein && recipe.nutrition.proteinG >= 25) score += 15;
+      // 5. Pantry Match
+      const reqNames = recipe.ingredients.map(i => i.name.toLowerCase());
+      const hasCount = reqNames.filter(name => state.pantry.some(p => name.includes(p.toLowerCase()))).length;
+      if (reqNames.length > 0) {
+        score += Math.round((hasCount / reqNames.length) * 15);
+      }
+      // 6. Saved Bonus
+      if (state.saved.includes(recipe.id)) score += 10;
+      // 7. Rating Bonus
+      if (state.ratings[recipe.id]?.stars >= 4) score += 10;
+      return score;
+    }
+
+    function formatMeasurementDisplay(ing, scaledQty) {
+      const mode = state.profile.measurement;
+      const g = ing.grams ? Math.round(ing.grams * (scaledQty / ing.quantity)) : null;
+      const metricStr = g ? `${g} g` : `${scaledQty} ${ing.unit}`;
+      const practicalStr = ing.practicalMeasure || `${scaledQty} ${ing.unit}`;
+      
+      if (mode === 'metric') return metricStr;
+      if (mode === 'household') return practicalStr;
+      return `${metricStr} · ${practicalStr}`;
+    }
+
+    // ==========================================
+    // 5. NAVIGATION & THEME CONTROLS
+    // ==========================================
+    function applyTheme() {
+      document.body.className = `theme-${state.mode} min-h-screen pb-28 md:pb-12`;
+      const dot = document.getElementById('header-mode-dot');
+      const text = document.getElementById('header-mode-text');
+      if (dot && text) {
+        if (state.mode === 'healthy') {
+          dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+          text.innerText = 'Healthy';
+        } else {
+          dot.className = 'w-2 h-2 rounded-full bg-orange-400';
+          text.innerText = 'Craving';
+        }
+      }
+    }
+
+    function toggleMode() {
+      state.mode = state.mode === 'healthy' ? 'craving' : 'healthy';
+      setStored('sass-sizzle-mode', state.mode);
+      applyTheme();
+      render();
+    }
+
+    function setExplicitMode(mode) {
+      state.mode = mode;
+      setStored('sass-sizzle-mode', mode);
+      applyTheme();
+      render();
+    }
+
+    function navigate(view, params = {}) {
+      if (state.cookingTimerInterval) {
+        clearInterval(state.cookingTimerInterval);
+        state.cookingTimerInterval = null;
+      }
+      state.view = view;
+      if (params.id) {
+        state.activeRecipeId = params.id;
+        const r = getAllRecipes().find(x => x.id === params.id);
+        state.servings = r ? r.servings : 1;
+        state.ingredientDeltas = {};
+      }
+      window.scrollTo(0, 0);
+      render();
+    }
+
+    function toggleSave(id, e) {
+      if (e) e.stopPropagation();
+      if (state.saved.includes(id)) {
+        state.saved = state.saved.filter(x => x !== id);
+      } else {
+        state.saved.push(id);
+      }
+      setStored('sass-sizzle-saved', state.saved);
+      render();
+    }
+
+    // ==========================================
+    // 6. VIEW RENDERERS
+    // ==========================================
+    function render() {
+      const root = document.getElementById('app-root');
+      applyTheme();
+      updateBottomNav();
+
+      if (state.view === 'home') root.innerHTML = getHomeHTML();
+      else if (state.view === 'discover') root.innerHTML = getDiscoverHTML();
+      else if (state.view === 'recipe') root.innerHTML = getRecipeHTML();
+      else if (state.view === 'cooking') root.innerHTML = getCookingHTML();
+      else if (state.view === 'pantry') root.innerHTML = getPantryHTML();
+      else if (state.view === 'saved') root.innerHTML = getSavedHTML();
+      else if (state.view === 'settings') root.innerHTML = getSettingsHTML();
+      else if (state.view === 'create') root.innerHTML = getCreateRecipeHTML();
+
+      lucide.createIcons();
+    }
+
+    function updateBottomNav() {
+      ['home', 'discover', 'pantry', 'saved', 'settings'].forEach(nav => {
+        const el = document.getElementById(`nav-btn-${nav}`);
+        if (el) {
+          if (state.view === nav) {
+            el.className = 'flex flex-col items-center gap-1 accent-text opacity-100 font-bold scale-105 transition-transform';
+          } else {
+            el.className = 'flex flex-col items-center gap-1 opacity-50 hover:opacity-100 transition-opacity';
+          }
+        }
+      });
+    }
+
+    // --- 6.1 HOME VIEW ---
+    function getHomeHTML() {
+      const isHealthy = state.mode === 'healthy';
+      const accentColor = isHealthy ? 'text-emerald-400' : 'text-orange-400';
+      const recipes = getAllRecipes()
+        .map(r => ({ recipe: r, score: calculateRecipeScore(r) }))
+        .sort((a, b) => b.score - a.score)
+        .map(x => x.recipe);
+
+      const picks = recipes.filter(r => r.mode === state.mode).slice(0, 6);
+      const savedList = recipes.filter(r => state.saved.includes(r.id)).slice(0, 3);
+      const quickBites = recipes.filter(r => r.totalMinutes <= 7).slice(0, 4);
+
+      return `
+        <div class="space-y-12 animate-in fade-in pb-10">
+          <!-- HERO -->
+          <section class="mt-4 space-y-5">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-card text-xs font-semibold opacity-80">
+              <span>👋 Hey ${state.profile.name || 'Chef'}.</span>
+              <span class="opacity-40">•</span>
+              <span>What are we making?</span>
+            </div>
+            <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
+              Fast food. <br />
+              <span class="${accentColor}">${isHealthy ? 'Clean & Delicious.' : 'Pure Satisfaction.'}</span>
+            </h1>
+            <p class="text-lg opacity-75 max-w-lg leading-relaxed">
+              Need dinner? Obviously. <br />
+              Choose your vibe and let's make something stupidly easy.
+            </p>
+
+            <div class="flex flex-wrap gap-3 pt-2">
+              <button onclick="setExplicitMode('healthy')" class="px-6 py-3.5 rounded-full font-bold text-sm transition-all shadow-lg flex items-center gap-2 ${isHealthy ? 'accent-bg scale-105' : 'glass-card opacity-70 hover:opacity-100'}">
+                <i data-lucide="leaf" class="w-4 h-4"></i> I WANT HEALTHY
+              </button>
+              <button onclick="setExplicitMode('craving')" class="px-6 py-3.5 rounded-full font-bold text-sm transition-all shadow-lg flex items-center gap-2 ${!isHealthy ? 'accent-bg scale-105' : 'glass-card opacity-70 hover:opacity-100'}">
+                <i data-lucide="flame" class="w-4 h-4"></i> I WANT CRAVING
+              </button>
+            </div>
+          </section>
+
+          <!-- TONIGHT'S PICKS -->
+          <section class="space-y-4">
+            <div class="flex items-end justify-between">
+              <div>
+                <p class="text-xs font-bold uppercase tracking-widest opacity-60 mb-1">
+                  ${isHealthy ? "Let's keep it clean." : "Okay, we're treating ourselves."}
+                </p>
+                <h2 class="text-2xl font-bold">Tonight's Picks</h2>
+              </div>
+              <button onclick="navigate('discover')" class="text-xs font-bold opacity-70 hover:opacity-100 flex items-center gap-1">
+                Browse all <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+              ${picks.map(r => getRecipeCardHTML(r)).join('')}
+            </div>
+          </section>
+
+          <!-- PANTRY TEASER -->
+          <section class="glass-card-accent p-6 md:p-8 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+            <div class="space-y-1.5 text-center md:text-left">
+              <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/10 opacity-80 inline-block mb-1">Zero Grocery Runs</span>
+              <h3 class="text-2xl font-bold">Cook with what you've got.</h3>
+              <p class="text-sm opacity-75 max-w-md">Tell us what ingredients are lurking in your kitchen. We'll show you instant meals.</p>
+            </div>
+            <button onclick="navigate('pantry')" class="accent-bg px-8 py-4 rounded-full font-bold text-sm flex items-center gap-2.5 whitespace-nowrap shadow-xl hover:scale-105 transition-transform">
+              <i data-lucide="refrigerator" class="w-4 h-4"></i> OPEN PANTRY (${state.pantry.length} items)
+            </button>
+          </section>
+
+          <!-- SAVED SECTION -->
+          <section class="space-y-4">
+            <h2 class="text-2xl font-bold">Saved for Later</h2>
+            ${savedList.length === 0 ? `
+              <div class="glass-card p-8 rounded-3xl text-center space-y-2">
+                <i data-lucide="heart" class="w-8 h-8 mx-auto opacity-30"></i>
+                <p class="font-medium opacity-80">Nothing saved yet.</p>
+                <p class="text-xs opacity-50">Find something you love, tap the heart, and keep it safe here.</p>
+              </div>
+            ` : `
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                ${savedList.map(r => getRecipeCardHTML(r)).join('')}
+              </div>
+            `}
+          </section>
+
+          <!-- QUICK BITES -->
+          <section class="space-y-4">
+            <h2 class="text-2xl font-bold">⚡ In a Rush? (≤ 7 Mins)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              ${quickBites.map(r => getRecipeCardHTML(r, true)).join('')}
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    // --- 6.2 RECIPE CARD COMPONENT ---
+    function getRecipeCardHTML(recipe, compact = false) {
+      const isSaved = state.saved.includes(recipe.id);
+      const isHealthy = recipe.mode === 'healthy';
+      const badgeColor = isHealthy ? 'text-emerald-400 bg-emerald-950/60 border-emerald-800/40' : 'text-orange-400 bg-orange-950/60 border-orange-800/40';
+
+      return `
+        <div onclick="navigate('recipe', { id: '${recipe.id}' })" class="group cursor-pointer glass-card rounded-3xl overflow-hidden border border-white/10 hover:border-white/25 transition-all duration-300 flex flex-col justify-between hover:-translate-y-1 shadow-lg">
+          <div>
+            <div class="aspect-[16/10] relative overflow-hidden bg-white/5">
+              <img src="${recipe.image}" alt="${recipe.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+              <button onclick="toggleSave('${recipe.id}', event)" class="absolute top-3.5 right-3.5 p-2.5 rounded-full bg-black/60 backdrop-blur-md text-white border border-white/10 hover:scale-110 active:scale-95 transition-all">
+                <i data-lucide="heart" class="w-4 h-4 ${isSaved ? 'fill-red-500 text-red-500' : ''}"></i>
+              </button>
+              <div class="absolute bottom-3 left-3 flex gap-2">
+                <span class="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full border ${badgeColor}">
+                  ${recipe.mode}
+                </span>
+                <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-white/80">
+                  ${recipe.totalMinutes} min
+                </span>
+              </div>
+            </div>
+            <div class="p-5 space-y-2">
+              ${recipe.cheeky ? `<p class="text-[11px] font-bold accent-text tracking-wide">${recipe.cheeky}</p>` : ''}
+              <h3 class="font-bold text-lg leading-snug group-hover:text-white">${recipe.title}</h3>
+              <p class="text-xs opacity-65 line-clamp-2 leading-relaxed">${recipe.description}</p>
+            </div>
+          </div>
+          <div class="px-5 pb-5 pt-2 flex items-center justify-between text-xs font-semibold opacity-70 border-t border-white/5">
+            <span>${recipe.nutrition.calories} kcal</span>
+            <span>${recipe.nutrition.proteinG}g protein</span>
+            <span class="capitalize">${recipe.equipment[0] || '1 Pan'}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- 6.3 DISCOVER VIEW (INSTANT SEARCH & FILTER) ---
+    function getDiscoverHTML() {
+      let results = getAllRecipes();
+
+      if (state.searchQuery) {
+        const q = state.searchQuery.toLowerCase();
+        results = results.filter(r => 
+          r.title.toLowerCase().includes(q) ||
+          r.description.toLowerCase().includes(q) ||
+          r.ingredients.some(i => i.name.toLowerCase().includes(q)) ||
+          r.equipment.some(e => e.toLowerCase().includes(q))
+        );
+      }
+
+      if (state.filterMood !== 'all') results = results.filter(r => r.mode === state.filterMood);
+      if (state.filterDiet !== 'all') results = results.filter(r => r.dietType === state.filterDiet);
+      if (state.filterTime > 0) results = results.filter(r => r.totalMinutes <= state.filterTime);
+      if (state.filterProtein) results = results.filter(r => r.nutrition.proteinG >= 25);
+
+      if (state.sortBy === 'fastest') results.sort((a, b) => a.totalMinutes - b.totalMinutes);
+      else if (state.sortBy === 'protein') results.sort((a, b) => b.nutrition.proteinG - a.nutrition.proteinG);
+      else if (state.sortBy === 'calories') results.sort((a, b) => a.nutrition.calories - b.nutrition.calories);
+      else if (state.sortBy === 'recommended') results.sort((a, b) => calculateRecipeScore(b) - calculateRecipeScore(a));
+
+      return `
+        <div class="space-y-6 animate-in fade-in pb-12">
+          <div>
+            <h1 class="text-3xl font-extrabold mb-1">Find your next meal.</h1>
+            <p class="text-xs opacity-60">Instant live search across titles, ingredients, and pantry staples.</p>
+          </div>
+
+          <!-- SEARCH INPUT -->
+          <div class="relative">
+            <i data-lucide="search" class="w-5 h-5 absolute left-4 top-3.5 opacity-40"></i>
+            <input 
+              type="text" 
+              placeholder="Search recipes, ingredients, eggs, noodles..." 
+              value="${state.searchQuery}" 
+              oninput="handleSearch(this.value)"
+              class="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-3.5 text-sm focus:outline-none focus:border-emerald-400 glass-card"
+            />
+          </div>
+
+          <!-- ACTIVE FILTER CHIPS -->
+          <div class="flex flex-wrap gap-2 items-center text-xs">
+            <select onchange="handleFilter('filterMood', this.value)" class="bg-[#201E1C] border border-white/10 rounded-xl px-3 py-2">
+              <option value="all" ${state.filterMood === 'all' ? 'selected' : ''}>All Vibes</option>
+              <option value="healthy" ${state.filterMood === 'healthy' ? 'selected' : ''}>Healthy</option>
+              <option value="craving" ${state.filterMood === 'craving' ? 'selected' : ''}>Craving</option>
+            </select>
+
+            <select onchange="handleFilter('filterDiet', this.value)" class="bg-[#201E1C] border border-white/10 rounded-xl px-3 py-2">
+              <option value="all" ${state.filterDiet === 'all' ? 'selected' : ''}>All Diets</option>
+              <option value="vegetarian" ${state.filterDiet === 'vegetarian' ? 'selected' : ''}>Vegetarian</option>
+              <option value="eggetarian" ${state.filterDiet === 'eggetarian' ? 'selected' : ''}>Eggetarian</option>
+              <option value="non_vegetarian" ${state.filterDiet === 'non_vegetarian' ? 'selected' : ''}>Non-Vegetarian</option>
+            </select>
+
+            <select onchange="handleFilter('filterTime', Number(this.value))" class="bg-[#201E1C] border border-white/10 rounded-xl px-3 py-2">
+              <option value="0" ${state.filterTime === 0 ? 'selected' : ''}>Any Time</option>
+              <option value="5" ${state.filterTime === 5 ? 'selected' : ''}>≤ 5 min</option>
+              <option value="10" ${state.filterTime === 10 ? 'selected' : ''}>≤ 10 min</option>
+              <option value="15" ${state.filterTime === 15 ? 'selected' : ''}>≤ 15 min</option>
+            </select>
+
+            <button onclick="handleFilter('filterProtein', !state.filterProtein)" class="px-3 py-2 rounded-xl border text-xs font-semibold ${state.filterProtein ? 'accent-bg' : 'glass-card border-white/10'}">
+              High Protein (≥25g)
+            </button>
+
+            <select onchange="handleFilter('sortBy', this.value)" class="bg-[#201E1C] border border-white/10 rounded-xl px-3 py-2 ml-auto">
+              <option value="recommended" ${state.sortBy === 'recommended' ? 'selected' : ''}>Sort: Best Match</option>
+              <option value="fastest" ${state.sortBy === 'fastest' ? 'selected' : ''}>Sort: Fastest</option>
+              <option value="protein" ${state.sortBy === 'protein' ? 'selected' : ''}>Sort: High Protein</option>
+              <option value="calories" ${state.sortBy === 'calories' ? 'selected' : ''}>Sort: Low Calorie</option>
+            </select>
+          </div>
+
+          <!-- RESULTS -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
+            ${results.length === 0 ? `
+              <div class="col-span-full text-center py-16 glass-card rounded-3xl space-y-3">
+                <i data-lucide="chef-hat" class="w-10 h-10 mx-auto opacity-30"></i>
+                <p class="text-lg font-bold">Nothing found.</p>
+                <p class="text-xs opacity-60">Try searching for a different ingredient or clearing filters.</p>
+                <button onclick="clearFilters()" class="accent-bg px-5 py-2.5 rounded-full text-xs font-bold">Reset Filters</button>
+              </div>
+            ` : results.map(r => getRecipeCardHTML(r)).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function handleSearch(val) { state.searchQuery = val; render(); }
+    function handleFilter(key, val) { state[key] = val; render(); }
+    function clearFilters() {
+      state.searchQuery = ''; state.filterMood = 'all'; state.filterDiet = 'all';
+      state.filterTime = 0; state.filterProtein = false; state.sortBy = 'recommended';
+      render();
+    }
+
+    // --- 6.4 RECIPE DETAIL VIEW (DYNAMIC ADJUSTER & NUTRITION) ---
+    function getRecipeHTML() {
+      const recipe = getAllRecipes().find(r => r.id === state.activeRecipeId);
+      if (!recipe) return `<div class="text-center py-20"><p>That recipe wandered off.</p><button onclick="navigate('discover')" class="mt-4 accent-bg px-6 py-2 rounded-full">Back to Discover</button></div>`;
+
+      const baseServings = recipe.servings || 1;
+      const scale = state.servings / baseServings;
+      const isSaved = state.saved.includes(recipe.id);
+      const userRating = state.ratings[recipe.id] || { stars: 0, wouldMakeAgain: null };
+
+      // Calculate dynamically scaled ingredients
+      const currentIngredients = recipe.ingredients.map(ing => {
+        const delta = state.ingredientDeltas[ing.id] !== undefined ? state.ingredientDeltas[ing.id] : (ing.quantity * scale);
+        return {
+          ...ing,
+          currentQty: Math.max(0.25, Number(delta.toFixed(2)))
+        };
+      });
+
+      // Calculate total nutrition scaled to current custom ingredient ratio
+      let totalCalories = 0, totalProtein = 0, totalCarbs = 0, totalFiber = 0, totalFat = 0;
+      let ratioSum = 0;
+      currentIngredients.forEach(i => {
+        ratioSum += (i.currentQty / i.quantity);
+      });
+      const avgRatio = ratioSum / currentIngredients.length;
+
+      totalCalories = Math.round(recipe.nutrition.calories * avgRatio);
+      totalProtein = Math.round(recipe.nutrition.proteinG * avgRatio);
+      totalCarbs = Math.round(recipe.nutrition.carbsG * avgRatio);
+      totalFiber = Math.round(recipe.nutrition.fiberG * avgRatio);
+      totalFat = Math.round(recipe.nutrition.fatG * avgRatio);
+      const netCarbs = Math.max(0, totalCarbs - totalFiber);
+
+      return `
+        <div class="max-w-3xl mx-auto space-y-8 animate-in fade-in pb-20">
+          <button onclick="navigate('home')" class="inline-flex items-center gap-2 text-xs font-bold opacity-60 hover:opacity-100">
+            <i data-lucide="chevron-left" class="w-4 h-4"></i> Back
+          </button>
+
+          <!-- HERO IMAGE -->
+          <div class="aspect-[16/9] rounded-3xl overflow-hidden relative glass-card">
+            <img src="${recipe.image}" alt="${recipe.title}" class="w-full h-full object-cover" />
+            <button onclick="toggleSave('${recipe.id}', event)" class="absolute top-4 right-4 p-3 rounded-full bg-black/60 backdrop-blur-md text-white border border-white/10 hover:scale-110 active:scale-95 transition-all">
+              <i data-lucide="heart" class="w-5 h-5 ${isSaved ? 'fill-red-500 text-red-500' : ''}"></i>
+            </button>
+          </div>
+
+          <!-- META -->
+          <div class="space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-extrabold uppercase tracking-widest px-3 py-1 rounded-full accent-bg text-black">
+                ${recipe.mode}
+              </span>
+              <span class="text-xs font-bold uppercase tracking-wider opacity-60">
+                ${recipe.dietType.replace('_', ' ')}
+              </span>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight">${recipe.title}</h1>
+            <p class="text-sm md:text-base opacity-75 leading-relaxed">${recipe.description}</p>
+            
+            <div class="flex flex-wrap gap-4 py-3 border-y border-white/10 text-xs font-semibold opacity-80">
+              <div class="flex items-center gap-1.5"><i data-lucide="clock" class="w-4 h-4 accent-text"></i> ${recipe.totalMinutes} mins total (${recipe.activePrepMinutes}m prep / ${recipe.cookMinutes}m cook)</div>
+              <div class="flex items-center gap-1.5"><i data-lucide="utensils" class="w-4 h-4 accent-text"></i> ${recipe.equipment.join(', ')}</div>
+            </div>
+          </div>
+
+          <!-- SERVINGS ADJUSTER -->
+          <section class="glass-card p-5 rounded-3xl flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-sm">Servings</h3>
+              <p class="text-xs opacity-50">Ingredients scale automatically</p>
+            </div>
+            <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full p-1">
+              <button onclick="adjustServings(-1)" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 font-bold">-</button>
+              <span class="w-6 text-center font-extrabold text-sm">${state.servings}</span>
+              <button onclick="adjustServings(1)" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 font-bold">+</button>
+            </div>
+          </section>
+
+          <!-- INGREDIENTS WITH INDIVIDUAL ADJUSTERS -->
+          <section class="space-y-3">
+            <div class="flex items-center justify-between">
+              <h2 class="text-xl font-bold">Ingredients</h2>
+              <span class="text-xs opacity-50 font-medium">Tap - / + to customize</span>
+            </div>
+            <div class="space-y-2.5">
+              ${currentIngredients.map(ing => `
+                <div class="glass-card p-3.5 rounded-2xl flex items-center justify-between border border-white/5">
+                  <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1.5 bg-black/40 rounded-full p-1 border border-white/10">
+                      <button onclick="adjustIngredientQty('${ing.id}', -0.25)" class="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-xs hover:bg-white/20">-</button>
+                      <span class="w-8 text-center text-xs font-bold">${ing.currentQty}</span>
+                      <button onclick="adjustIngredientQty('${ing.id}', 0.25)" class="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-xs hover:bg-white/20">+</button>
+                    </div>
+                    <span class="font-semibold text-sm">${ing.name}</span>
+                  </div>
+                  <span class="text-xs opacity-65 text-right font-medium">
+                    ${formatMeasurementDisplay(ing, ing.currentQty)}
+                  </span>
+                </div>
+              `).join('')}
+            </div>
+          </section>
+
+          <!-- DYNAMIC NUTRITION PANEL -->
+          <section class="space-y-3">
+            <div class="flex items-center justify-between">
+              <h2 class="text-xl font-bold">Prototype Nutrition</h2>
+              <span class="text-[10px] opacity-40 uppercase tracking-widest font-bold">Estimates only</span>
+            </div>
+            <div class="grid grid-cols-3 md:grid-cols-6 gap-2.5">
+              <div class="glass-card p-3 rounded-2xl text-center">
+                <div class="text-xl font-black accent-text">${totalCalories}</div>
+                <div class="text-[10px] font-bold opacity-60 uppercase tracking-wider">Calories</div>
+              </div>
+              <div class="glass-card p-3 rounded-2xl text-center">
+                <div class="text-xl font-black text-emerald-400">${totalProtein}g</div>
+                <div class="text-[10px] font-bold opacity-60 uppercase tracking-wider">Protein</div>
+              </div>
+              <div class="glass-card p-3 rounded-2xl text-center">
+                <div class="text-xl font-black">${totalCarbs}g</div>
+                <div class="text-[10px] font-bold opacity-60 uppercase tracking-wider">Carbs</div>
+              </div>
+              <div class="glass-card p-3 rounded-2xl text-center">
+                <div class="text-xl font-black">${totalFiber}g</div>
+                <div class="text-[10px] font-bold opacity-60 uppercase tracking-wider">Fiber</div>
+              </div>
+              <div class="glass-card p-3 rounded-2xl text-center">
+                <div class="text-xl font-black">${netCarbs}g</div>
+                <div class="text-[10px] font-bold opacity-60 uppercase tracking-wider">Net Carbs</div>
+              </div>
+              <div class="glass-card p-3 rounded-2xl text-center">
+                <div class="text-xl font-black">${totalFat}g</div>
+                <div class="text-[10px] font-bold opacity-60 uppercase tracking-wider">Fat</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- MICRONUTRIENTS -->
+          ${recipe.micronutrients && recipe.micronutrients.length > 0 ? `
+            <section class="space-y-3">
+              <h2 class="text-xl font-bold">Key Micronutrients</h2>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                ${recipe.micronutrients.map(m => `
+                  <div class="glass-card p-4 rounded-2xl space-y-1">
+                    <div class="flex justify-between items-center">
+                      <span class="font-bold text-sm">${m.nutrient}</span>
+                      <span class="text-xs font-bold accent-text">${m.amount} ${m.unit}</span>
+                    </div>
+                    <p class="text-xs opacity-65 leading-relaxed">${m.benefit}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </section>
+          ` : ''}
+
+          <!-- PERSONAL NOTES & RATINGS -->
+          <section class="glass-card p-6 rounded-3xl space-y-4">
+            <h2 class="text-xl font-bold">Personal Notes & Rating</h2>
+            <textarea 
+              oninput="handleSaveNotes('${recipe.id}', this.value)"
+              placeholder="What would you tweak next time? (e.g. add extra chili, double paneer...)"
+              class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm focus:outline-none focus:border-emerald-400 min-h-[90px]"
+            >${state.notes[recipe.id] || ''}</textarea>
+
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2 border-t border-white/5">
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-bold opacity-60 mr-2">Rate:</span>
+                ${[1,2,3,4,5].map(star => `
+                  <button onclick="handleRating('${recipe.id}', ${star})" class="p-1 hover:scale-125 transition-transform text-amber-400">
+                    <i data-lucide="star" class="w-5 h-5 ${star <= userRating.stars ? 'fill-amber-400' : 'opacity-30'}"></i>
+                  </button>
+                `).join('')}
+              </div>
+
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold opacity-60">Make again?</span>
+                <button onclick="handleWouldMakeAgain('${recipe.id}', 'YES')" class="px-3 py-1.5 rounded-lg text-xs font-bold border ${userRating.wouldMakeAgain === 'YES' ? 'accent-bg' : 'border-white/10'}">YES</button>
+                <button onclick="handleWouldMakeAgain('${recipe.id}', 'MAYBE')" class="px-3 py-1.5 rounded-lg text-xs font-bold border ${userRating.wouldMakeAgain === 'MAYBE' ? 'accent-bg' : 'border-white/10'}">MAYBE</button>
+                <button onclick="handleWouldMakeAgain('${recipe.id}', 'NO')" class="px-3 py-1.5 rounded-lg text-xs font-bold border ${userRating.wouldMakeAgain === 'NO' ? 'accent-bg' : 'border-white/10'}">NO</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- STICKY COOKING BAR -->
+          <div class="sticky bottom-24 md:bottom-8 z-30 flex justify-center">
+            <button onclick="startCooking('${recipe.id}')" class="accent-bg px-10 py-5 rounded-full font-black text-base flex items-center gap-3 shadow-2xl hover:scale-105 active:scale-95 transition-all">
+              <i data-lucide="play" class="w-5 h-5 fill-current"></i> START COOKING MODE
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function adjustServings(delta) {
+      const next = state.servings + delta;
+      if (next >= 1 && next <= 6) {
+        state.servings = next;
+        state.ingredientDeltas = {};
+        render();
+      }
+    }
+
+    function adjustIngredientQty(ingId, delta) {
+      const recipe = getAllRecipes().find(r => r.id === state.activeRecipeId);
+      const ing = recipe.ingredients.find(i => i.id === ingId);
+      const cur = state.ingredientDeltas[ingId] !== undefined ? state.ingredientDeltas[ingId] : (ing.quantity * (state.servings / recipe.servings));
+      const next = Math.max(0.25, cur + delta);
+      state.ingredientDeltas[ingId] = next;
+      render();
+    }
+
+    function handleSaveNotes(id, text) {
+      state.notes[id] = text;
+      setStored('sass-sizzle-notes', state.notes);
+    }
+
+    function handleRating(id, stars) {
+      if (!state.ratings[id]) state.ratings[id] = {};
+      state.ratings[id].stars = stars;
+      setStored('sass-sizzle-ratings', state.ratings);
+      render();
+    }
+
+    function handleWouldMakeAgain(id, choice) {
+      if (!state.ratings[id]) state.ratings[id] = {};
+      state.ratings[id].wouldMakeAgain = choice;
+      setStored('sass-sizzle-ratings', state.ratings);
+      render();
+    }
+
+    // --- 6.5 COOKING MODE VIEW (TIMESTAMP-BASED TIMER) ---
+    function startCooking(id) {
+      state.activeRecipeId = id;
+      state.cookingStep = 0;
+      const recipe = getAllRecipes().find(r => r.id === id);
+      const firstStepTimer = recipe.steps[0]?.timerSeconds || 0;
+      state.cookingTimerRemaining = firstStepTimer;
+      state.cookingTimerRunning = false;
+      state.cookingTimerEnd = null;
+      navigate('cooking');
+    }
+
+    function getCookingHTML() {
+      const recipe = getAllRecipes().find(r => r.id === state.activeRecipeId);
+      if (!recipe) return '';
+
+      const totalSteps = recipe.steps.length;
+      const step = recipe.steps[state.cookingStep];
+      const isCompleted = state.cookingStep >= totalSteps;
+
+      if (isCompleted) {
+        return `
+          <div class="max-w-md mx-auto text-center py-16 space-y-6 animate-in fade-in">
+            <div class="w-20 h-20 rounded-3xl accent-bg flex items-center justify-center mx-auto shadow-2xl">
+              <i data-lucide="check" class="w-10 h-10 text-stone-900"></i>
+            </div>
+            <div class="space-y-2">
+              <h1 class="text-4xl font-extrabold">You did it.</h1>
+              <p class="text-xl accent-text font-bold">Dinner: handled.</p>
+              <p class="text-sm opacity-65">Look at you, cooking like an absolute boss.</p>
+            </div>
+            <div class="space-y-3 pt-6">
+              <button onclick="navigate('recipe', { id: '${recipe.id}' })" class="w-full py-4 rounded-full accent-bg font-bold text-sm">Rate & View Recipe</button>
+              <button onclick="navigate('home')" class="w-full py-4 rounded-full glass-card font-bold text-sm opacity-80 hover:opacity-100">Back to Kitchen</button>
+            </div>
+          </div>
+        `;
+      }
+
+      const mins = Math.floor(state.cookingTimerRemaining / 60).toString().padStart(2, '0');
+      const secs = (state.cookingTimerRemaining % 60).toString().padStart(2, '0');
+
+      return `
+        <div class="max-w-2xl mx-auto min-h-[80vh] flex flex-col justify-between py-6 animate-in fade-in">
+          <!-- TOP BAR -->
+          <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <button onclick="navigate('recipe', { id: '${recipe.id}' })" class="text-xs font-bold opacity-60 hover:opacity-100 flex items-center gap-1">
+              <i data-lucide="x" class="w-4 h-4"></i> Exit
+            </button>
+            <div class="flex items-center gap-1.5">
+              ${recipe.steps.map((_, i) => `
+                <div class="w-2.5 h-2.5 rounded-full ${i === state.cookingStep ? 'accent-bg' : i < state.cookingStep ? 'bg-white/80' : 'bg-white/20'}"></div>
+              `).join('')}
+            </div>
+            <span class="text-xs font-extrabold uppercase tracking-widest opacity-60">Step ${state.cookingStep + 1} / ${totalSteps}</span>
+          </div>
+
+          <!-- STEP INSTRUCTION -->
+          <div class="text-center py-8 space-y-8">
+            <h2 class="text-3xl md:text-5xl font-extrabold leading-tight tracking-tight max-w-xl mx-auto">
+              ${step.instruction}
+            </h2>
+
+            <!-- REAL TIMER -->
+            ${step.timerSeconds > 0 ? `
+              <div class="glass-card p-8 rounded-3xl max-w-xs mx-auto space-y-4 border border-white/15 shadow-2xl">
+                <div class="text-6xl font-black tracking-tighter font-mono ${state.cookingTimerRemaining === 0 ? 'text-emerald-400 animate-pulse' : ''}">
+                  ${mins}:${secs}
+                </div>
+                <div class="flex justify-center gap-3">
+                  <button onclick="toggleCookingTimer()" class="w-14 h-14 rounded-full accent-bg flex items-center justify-center hover:scale-105 active:scale-95 transition-transform shadow-lg">
+                    <i data-lucide="${state.cookingTimerRunning ? 'pause' : 'play'}" class="w-6 h-6 fill-current"></i>
+                  </button>
+                  <button onclick="resetCookingTimer(${step.timerSeconds})" class="w-14 h-14 rounded-full glass-card flex items-center justify-center hover:bg-white/20 transition-all">
+                    <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+                  </button>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- BOTTOM CONTROLS -->
+          <div class="flex items-center justify-between pt-6 border-t border-white/10">
+            <button onclick="prevCookingStep()" class="px-6 py-4 rounded-full glass-card text-xs font-bold ${state.cookingStep === 0 ? 'opacity-30 pointer-events-none' : 'hover:bg-white/20'} flex items-center gap-2">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i> Previous
+            </button>
+            <button onclick="nextCookingStep()" class="px-8 py-4 rounded-full accent-bg text-sm font-black flex items-center gap-2 shadow-xl hover:scale-105 transition-transform">
+              ${state.cookingStep === totalSteps - 1 ? 'Finish!' : 'Next Step'} <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleCookingTimer() {
+      if (state.cookingTimerRunning) {
+        // PAUSE
+        clearInterval(state.cookingTimerInterval);
+        state.cookingTimerInterval = null;
+        state.cookingTimerRunning = false;
+      } else {
+        // START/RESUME (Timestamp-based)
+        state.cookingTimerRunning = true;
+        state.cookingTimerEnd = Date.now() + (state.cookingTimerRemaining * 1000);
+        state.cookingTimerInterval = setInterval(() => {
+          const rem = Math.max(0, Math.ceil((state.cookingTimerEnd - Date.now()) / 1000));
+          state.cookingTimerRemaining = rem;
+          if (rem === 0) {
+            clearInterval(state.cookingTimerInterval);
+            state.cookingTimerInterval = null;
+            state.cookingTimerRunning = false;
+            playBeep();
+          }
+          render();
+        }, 500);
+      }
+      render();
+    }
+
+    function resetCookingTimer(sec) {
+      if (state.cookingTimerInterval) clearInterval(state.cookingTimerInterval);
+      state.cookingTimerInterval = null;
+      state.cookingTimerRunning = false;
+      state.cookingTimerRemaining = sec;
+      render();
+    }
+
+    function nextCookingStep() {
+      const recipe = getAllRecipes().find(r => r.id === state.activeRecipeId);
+      if (state.cookingTimerInterval) clearInterval(state.cookingTimerInterval);
+      state.cookingTimerInterval = null;
+      state.cookingTimerRunning = false;
+
+      if (state.cookingStep < recipe.steps.length - 1) {
+        state.cookingStep++;
+        const nextSec = recipe.steps[state.cookingStep]?.timerSeconds || 0;
+        state.cookingTimerRemaining = nextSec;
+      } else {
+        // COMPLETE
+        state.cookingStep++;
+        state.history.push({
+          recipeId: recipe.id,
+          completedAt: new Date().toISOString(),
+          servings: state.servings
+        });
+        setStored('sass-sizzle-history', state.history);
+      }
+      render();
+    }
+
+    function prevCookingStep() {
+      if (state.cookingStep > 0) {
+        if (state.cookingTimerInterval) clearInterval(state.cookingTimerInterval);
+        state.cookingTimerInterval = null;
+        state.cookingTimerRunning = false;
+        state.cookingStep--;
+        const recipe = getAllRecipes().find(r => r.id === state.activeRecipeId);
+        state.cookingTimerRemaining = recipe.steps[state.cookingStep]?.timerSeconds || 0;
+        render();
+      }
+    }
+
+    // --- 6.6 PANTRY VIEW ---
+    function getPantryHTML() {
+      const recipes = getAllRecipes();
+      const matchResults = recipes.map(recipe => {
+        const reqNames = recipe.ingredients.map(i => i.name.toLowerCase());
+        const matched = reqNames.filter(req => state.pantry.some(p => req.includes(p.toLowerCase())));
+        const score = reqNames.length ? Math.round((matched.length / reqNames.length) * 100) : 0;
+        const missing = recipe.ingredients.filter(i => !state.pantry.some(p => i.name.toLowerCase().includes(p.toLowerCase())));
+        return { recipe, score, missing };
+      }).sort((a, b) => b.score - a.score);
+
+      return `
+        <div class="space-y-8 animate-in fade-in pb-16">
+          <div>
+            <h1 class="text-3xl md:text-4xl font-extrabold mb-1">What's lurking in your kitchen?</h1>
+            <p class="text-xs md:text-sm opacity-65">Tell us what you've got. We'll tell you what you can make.</p>
+          </div>
+
+          <!-- SELECTOR -->
+          <section class="glass-card p-6 rounded-3xl space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xs font-bold uppercase tracking-widest opacity-60">Tap to Toggle Pantry Items</h3>
+              <div class="flex gap-2">
+                <button onclick="toggleAllPantry(true)" class="text-xs font-bold opacity-60 hover:opacity-100">Select Common</button>
+                <span class="opacity-30">•</span>
+                <button onclick="toggleAllPantry(false)" class="text-xs font-bold text-red-400 opacity-60 hover:opacity-100">Clear</button>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              ${PANTRY_STAPLES.map(item => {
+                const has = state.pantry.includes(item);
+                return `
+                  <button onclick="togglePantryItem('${item}')" class="px-3.5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${has ? 'accent-bg shadow-md' : 'glass-card border-white/10 opacity-70 hover:opacity-100'}">
+                    <i data-lucide="${has ? 'check' : 'plus'}" class="w-3.5 h-3.5"></i> ${item}
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </section>
+
+          <!-- MATCHING RESULTS -->
+          <section class="space-y-4">
+            <h2 class="text-2xl font-bold">What You Can Make (${matchResults.filter(x => x.score > 0).length})</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              ${matchResults.map(({ recipe, score, missing }) => `
+                <div onclick="navigate('recipe', { id: '${recipe.id}' })" class="glass-card p-5 rounded-3xl cursor-pointer hover:border-white/30 transition-all flex flex-col justify-between">
+                  <div>
+                    <div class="flex justify-between items-start mb-2">
+                      <h4 class="text-lg font-bold">${recipe.title}</h4>
+                      <span class="text-xs font-black px-2.5 py-1 rounded-full ${score === 100 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-white/10 text-white/80'}">
+                        ${score}% MATCH
+                      </span>
+                    </div>
+                    ${score === 100 ? `
+                      <p class="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> You've got everything!
+                      </p>
+                    ` : `
+                      <p class="text-xs opacity-60">
+                        Missing: <span class="text-white/90 font-medium">${missing.map(m => m.name).slice(0, 3).join(', ')}${missing.length > 3 ? '...' : ''}</span>
+                      </p>
+                    `}
+                  </div>
+                  <div class="flex items-center justify-between text-xs opacity-50 mt-4 pt-3 border-t border-white/5">
+                    <span>${recipe.totalMinutes} min</span>
+                    <span>${recipe.nutrition.calories} kcal</span>
+                    <span>${recipe.nutrition.proteinG}g protein</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    function togglePantryItem(name) {
+      if (state.pantry.includes(name)) {
+        state.pantry = state.pantry.filter(x => x !== name);
+      } else {
+        state.pantry.push(name);
+      }
+      setStored('sass-sizzle-pantry', state.pantry);
+      render();
+    }
+
+    function toggleAllPantry(selectCommon) {
+      if (selectCommon) {
+        state.pantry = ["Eggs", "Cooked rice", "Cooking oil", "Soy sauce", "Black pepper", "Spring onion", "Paneer", "Whole-grain bread"];
+      } else {
+        state.pantry = [];
+      }
+      setStored('sass-sizzle-pantry', state.pantry);
+      render();
+    }
+
+    // --- 6.7 SAVED RECIPES VIEW ---
+    function getSavedHTML() {
+      const savedList = getAllRecipes().filter(r => state.saved.includes(r.id));
+      return `
+        <div class="space-y-6 animate-in fade-in pb-16">
+          <div>
+            <h1 class="text-3xl font-extrabold mb-1">Your Recipe Vault</h1>
+            <p class="text-xs opacity-60">${savedList.length} recipes saved for quick access</p>
+          </div>
+
+          ${savedList.length === 0 ? `
+            <div class="glass-card p-12 rounded-3xl text-center space-y-3">
+              <i data-lucide="heart" class="w-12 h-12 mx-auto opacity-20"></i>
+              <h3 class="text-lg font-bold">Nothing saved yet.</h3>
+              <p class="text-xs opacity-60">Go find something dangerously delicious and hit the heart.</p>
+              <button onclick="navigate('discover')" class="accent-bg px-6 py-2.5 rounded-full text-xs font-bold mt-2">Explore Recipes</button>
+            </div>
+          ` : `
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+              ${savedList.map(r => getRecipeCardHTML(r)).join('')}
+            </div>
+          `}
+        </div>
+      `;
+    }
+
+    // --- 6.8 SETTINGS & PROFILE VIEW (BACKUP / RESTORE) ---
+    function getSettingsHTML() {
+      return `
+        <div class="max-w-2xl mx-auto space-y-8 animate-in fade-in pb-20">
+          <div>
+            <h1 class="text-3xl font-extrabold mb-1">Personal Settings</h1>
+            <p class="text-xs opacity-60">Stored 100% locally in your browser. Zero backend.</p>
+          </div>
+
+          <!-- PROFILE FORM -->
+          <section class="glass-card p-6 rounded-3xl space-y-5">
+            <h2 class="text-lg font-bold border-b border-white/10 pb-3">Your Preferences</h2>
+            
+            <div class="space-y-4 text-sm">
+              <div>
+                <label class="text-xs font-bold uppercase tracking-wider opacity-60 block mb-1.5">What should we call you?</label>
+                <input 
+                  type="text" 
+                  value="${state.profile.name || ''}" 
+                  oninput="updateProfile('name', this.value)"
+                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 focus:outline-none focus:border-emerald-400"
+                />
+              </div>
+
+              <div>
+                <label class="text-xs font-bold uppercase tracking-wider opacity-60 block mb-1.5">Dietary Filter</label>
+                <select onchange="updateProfile('diet', this.value)" class="w-full bg-[#201E1C] border border-white/10 rounded-xl px-3 py-2.5">
+                  <option value="vegetarian" ${state.profile.diet === 'vegetarian' ? 'selected' : ''}>Vegetarian</option>
+                  <option value="eggetarian" ${state.profile.diet === 'eggetarian' ? 'selected' : ''}>Eggetarian</option>
+                  <option value="non_vegetarian" ${state.profile.diet === 'non_vegetarian' ? 'selected' : ''}>Non-Vegetarian</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="text-xs font-bold uppercase tracking-wider opacity-60 block mb-1.5">Preferred Maximum Cooking Time</label>
+                <select onchange="updateProfile('maxTime', Number(this.value))" class="w-full bg-[#201E1C] border border-white/10 rounded-xl px-3 py-2.5">
+                  <option value="0" ${state.profile.maxTime === 0 ? 'selected' : ''}>No Limit</option>
+                  <option value="5" ${state.profile.maxTime === 5 ? 'selected' : ''}>5 minutes</option>
+                  <option value="10" ${state.profile.maxTime === 10 ? 'selected' : ''}>10 minutes</option>
+                  <option value="15" ${state.profile.maxTime === 15 ? 'selected' : ''}>15 minutes</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="text-xs font-bold uppercase tracking-wider opacity-60 block mb-1.5">Measurement Format</label>
+                <select onchange="updateProfile('measurement', this.value)" class="w-full bg-[#201E1C] border border-white/10 rounded-xl px-3 py-2.5">
+                  <option value="both" ${state.profile.measurement === 'both' ? 'selected' : ''}>Both (150 g · about 1 cup)</option>
+                  <option value="metric" ${state.profile.measurement === 'metric' ? 'selected' : ''}>Metric Only (150 g)</option>
+                  <option value="household" ${state.profile.measurement === 'household' ? 'selected' : ''}>Household Only (about 1 cup)</option>
+                </select>
+              </div>
+            </div>
+          </section>
+
+          <!-- COOKING STATS -->
+          <section class="glass-card p-6 rounded-3xl space-y-2">
+            <h2 class="text-lg font-bold">Your Cooking History</h2>
+            <p class="text-sm opacity-70">You have completed <strong class="accent-text text-base">${state.history.length}</strong> home-cooked meals.</p>
+          </section>
+
+          <!-- DATA BACKUP & RESTORE -->
+          <section class="glass-card p-6 rounded-3xl space-y-4">
+            <h2 class="text-lg font-bold border-b border-white/10 pb-3">Data Portability</h2>
+            <div class="flex flex-wrap gap-3">
+              <button onclick="exportJSONBackup()" class="px-5 py-2.5 rounded-full accent-bg text-xs font-bold flex items-center gap-1.5">
+                <i data-lucide="download" class="w-4 h-4"></i> Export My Data (JSON)
+              </button>
+              <label class="px-5 py-2.5 rounded-full glass-card border border-white/10 text-xs font-bold flex items-center gap-1.5 cursor-pointer hover:bg-white/10">
+                <i data-lucide="upload" class="w-4 h-4"></i> Import Data
+                <input type="file" accept=".json" onchange="importJSONBackup(event)" class="hidden" />
+              </label>
+            </div>
+          </section>
+
+          <!-- DANGER ZONE -->
+          <section class="p-6 rounded-3xl border border-red-500/20 bg-red-950/10 space-y-3">
+            <h2 class="text-sm font-bold text-red-400 uppercase tracking-widest">Danger Zone</h2>
+            <p class="text-xs opacity-65">This will clear your local saved recipes, pantry list, custom recipes, notes, and cooking history.</p>
+            <button onclick="resetEverything()" class="px-5 py-2.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/40 text-xs font-bold hover:bg-red-500/40">
+              Reset Everything
+            </button>
+          </section>
+        </div>
+      `;
+    }
+
+    function updateProfile(key, val) {
+      state.profile[key] = val;
+      setStored('sass-sizzle-profile', state.profile);
+    }
+
+    function exportJSONBackup() {
+      const data = {
+        profile: state.profile,
+        mode: state.mode,
+        pantry: state.pantry,
+        saved: state.saved,
+        notes: state.notes,
+        ratings: state.ratings,
+        history: state.history,
+        customRecipes: state.customRecipes
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `sass-and-sizzle-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+    }
+
+    function importJSONBackup(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (parsed && typeof parsed === 'object') {
+            if (parsed.profile) setStored('sass-sizzle-profile', state.profile = parsed.profile);
+            if (parsed.mode) setStored('sass-sizzle-mode', state.mode = parsed.mode);
+            if (parsed.pantry) setStored('sass-sizzle-pantry', state.pantry = parsed.pantry);
+            if (parsed.saved) setStored('sass-sizzle-saved', state.saved = parsed.saved);
+            if (parsed.notes) setStored('sass-sizzle-notes', state.notes = parsed.notes);
+            if (parsed.ratings) setStored('sass-sizzle-ratings', state.ratings = parsed.ratings);
+            if (parsed.history) setStored('sass-sizzle-history', state.history = parsed.history);
+            if (parsed.customRecipes) setStored('sass-sizzle-custom-recipes', state.customRecipes = parsed.customRecipes);
+            alert('Backup restored successfully!');
+            render();
+          } else {
+            alert("That file doesn't look like a Sass & Sizzle backup.");
+          }
+        } catch (err) {
+          alert("That backup file isn't valid.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetEverything() {
+      if (confirm("This will delete all saved recipes, pantry items, notes, ratings, and history. Are you sure?")) {
+        localStorage.clear();
+        location.reload();
+      }
+    }
+
+    // ==========================================
+    // 7. ONBOARDING MODAL CONTROLS
+    // ==========================================
+    let obModeSelected = 'healthy';
+    function setObMode(mode) {
+      obModeSelected = mode;
+      const hBtn = document.getElementById('ob-mode-healthy');
+      const cBtn = document.getElementById('ob-mode-craving');
+      if (mode === 'healthy') {
+        hBtn.className = 'py-2.5 rounded-xl text-xs font-bold border border-emerald-500 bg-emerald-500/20 text-emerald-300';
+        cBtn.className = 'py-2.5 rounded-xl text-xs font-bold border border-white/10 bg-white/5';
+      } else {
+        cBtn.className = 'py-2.5 rounded-xl text-xs font-bold border border-orange-500 bg-orange-500/20 text-orange-300';
+        hBtn.className = 'py-2.5 rounded-xl text-xs font-bold border border-white/10 bg-white/5';
+      }
+    }
+
+    function finishOnboarding(skipped) {
+      if (!skipped) {
+        const name = document.getElementById('ob-name').value.trim();
+        const diet = document.getElementById('ob-diet').value;
+        if (name) state.profile.name = name;
+        state.profile.diet = diet;
+        state.mode = obModeSelected;
+        setStored('sass-sizzle-profile', state.profile);
+        setStored('sass-sizzle-mode', state.mode);
+      }
+      setStored('sass-sizzle-onboarded', true);
+      document.getElementById('onboarding-modal').classList.add('hidden');
+      render();
+    }
+
+    // ==========================================
+    // 8. APP INITIALIZATION
+    // ==========================================
+    window.addEventListener('DOMContentLoaded', () => {
+      const hasOnboarded = getStored('sass-sizzle-onboarded', false);
+      if (!hasOnboarded) {
+        document.getElementById('onboarding-modal').classList.remove('hidden');
+      }
+      render();
+    });
+  </script>
+</body>
+</html>
